@@ -1,34 +1,33 @@
+import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { AccountAddress, Ed25519PublicKey } from "@aptos-labs/ts-sdk";
 import { useMemo } from "react";
-import { useAptosWallet } from "./useAptosWallet";
 
-/**
- * Creates a Shelby-compatible signer from the connected Petra wallet.
- * Uses window.aptos directly — no wallet adapter package needed.
- */
 export function useWalletSigner() {
-  const { account, connected, signTransaction, connect, disconnect, isInstalled, loading } =
-    useAptosWallet();
+  const { account, connected, signTransaction, connect, disconnect, wallets } = useWallet();
 
   const signer = useMemo(() => {
     if (!connected || !account) return null;
 
-    return {
-      accountAddress: AccountAddress.fromString(account.address),
-      publicKey: account.publicKey
-        ? new Ed25519PublicKey(
-            typeof account.publicKey === "string"
-              ? account.publicKey
-              : account.publicKey.toString()
-          )
-        : null,
+    // Safely convert address to string regardless of type
+    const addressStr = typeof account.address === "string"
+      ? account.address
+      : account.address?.toString() ?? "";
 
-      // Petra signs the Shelby storage transaction
+    // Safely convert publicKey to string
+    const pubKeyStr = account.publicKey
+      ? (typeof account.publicKey === "string"
+          ? account.publicKey
+          : account.publicKey?.toString() ?? "")
+      : null;
+
+    return {
+      accountAddress: AccountAddress.fromString(addressStr),
+      publicKey: pubKeyStr ? new Ed25519PublicKey(pubKeyStr) : null,
       signTransaction: async (transaction) => {
         try {
           return await signTransaction(transaction);
         } catch (err) {
-          if (err?.code === 4001 || err?.message?.includes("rejected")) {
+          if (err?.message?.includes("rejected") || err?.code === 4001) {
             throw new Error("USER_REJECTED");
           }
           throw err;
@@ -37,5 +36,12 @@ export function useWalletSigner() {
     };
   }, [account, connected, signTransaction]);
 
-  return { signer, connected, account, connect, disconnect, isInstalled, loading };
+  return {
+    signer,
+    connected,
+    account,
+    connect,
+    disconnect,
+    wallets,
+  };
 }

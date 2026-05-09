@@ -11,23 +11,8 @@ export default defineConfig({
     }),
   ],
 
-  // Mark optional wallet dependencies as external
-  // (Mizu, Telegram, old Aptos SDK — we don't use these)
-  build: {
-    rollupOptions: {
-      external: [
-        "@mizuwallet-sdk/core",
-        "aptos",
-        "@telegram-apps/bridge",
-      ],
-    },
-  },
-
   optimizeDeps: {
-    exclude: [
-      "@mizuwallet-sdk/core",
-      "@telegram-apps/bridge",
-    ],
+    include: ["eventemitter3"],
   },
 
   server: {

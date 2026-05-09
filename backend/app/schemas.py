@@ -4,14 +4,13 @@ from typing import Optional
 
 
 class ProofRequest(BaseModel):
-    """Sent by frontend after Shelby upload completes."""
     file_hash: str
     file_name: str
     file_size: int
     file_type: Optional[str] = None
     shelby_blob_id: str
     shelby_blob_url: Optional[str] = None
-    owner_address: Optional[str] = None   # User's Petra wallet address
+    owner_address: Optional[str] = None
 
 
 class ProofResponse(BaseModel):
