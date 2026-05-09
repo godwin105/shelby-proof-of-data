@@ -1,0 +1,28 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from .database import Base, engine
+from .routes import proof, verify
+
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(
+    title="Shelby Proof-of-Data API",
+    description="Decentralized proof-of-existence: Shelby storage + Aptos blockchain.",
+    version="2.0.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(proof.router)
+app.include_router(verify.router)
+
+
+@app.get("/", tags=["Health"])
+def root():
+    return {"status": "ok", "service": "Shelby Proof-of-Data API v2.0.0"}

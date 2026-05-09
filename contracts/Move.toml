@@ -1,0 +1,14 @@
+[package]
+name = "ProofOfData"
+version = "1.0.0"
+
+[addresses]
+proof_of_data_addr = "_"
+
+[dev-addresses]
+proof_of_data_addr = "0xcafe"
+
+[dependencies.AptosFramework]
+git = "https://github.com/aptos-labs/aptos-core.git"
+rev = "mainnet"
+subdir = "aptos-move/framework/aptos-framework"
