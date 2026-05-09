@@ -14,8 +14,8 @@ import AboutPage from "./pages/AboutPage";
 
 const queryClient = new QueryClient();
 
-// Aptos Labs API key fixes the 401 Unauthorized error on Shelby testnet
-// Get yours free at: https://developers.aptoslabs.com/
+// Aptos Labs API key — get free at developers.aptoslabs.com
+// Fixes 401 Unauthorized on Shelby testnet RPC
 const aptosConfig = new AptosConfig({
   network: Network.TESTNET,
   ...(import.meta.env.VITE_APTOS_API_KEY && {
@@ -23,18 +23,19 @@ const aptosConfig = new AptosConfig({
   }),
 });
 
-const shelbyClient = new ShelbyClient({
-  network: Network.TESTNET,
-  aptosConfig,
-});
+const shelbyClient = new ShelbyClient({ network: Network.TESTNET, aptosConfig });
 
-// Supported wallets — Petra is the most popular Aptos wallet
+// Supported wallets — add more as needed (Pontem, Martian, etc.)
 const wallets = [new PetraWallet()];
 
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AptosWalletAdapterProvider plugins={wallets} autoConnect={false}>
+      <AptosWalletAdapterProvider
+        plugins={wallets}
+        autoConnect={true}
+        onError={(error) => console.warn("Wallet error:", error)}
+      >
         <ShelbyClientProvider client={shelbyClient}>
           <BrowserRouter>
             <Toaster
