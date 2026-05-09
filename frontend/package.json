@@ -19,6 +19,9 @@
     "@shelby-protocol/react": "latest",
     "@shelby-protocol/sdk": "latest",
     "@aptos-labs/ts-sdk": "^6.0.0",
+    "@aptos-labs/wallet-adapter-react": "^3.0.0",
+    "@aptos-labs/wallet-adapter-core": "^3.0.0",
+    "petra-plugin-wallet-adapter": "^0.2.9",
     "@tanstack/react-query": "^5.0.0"
   },
   "devDependencies": {
