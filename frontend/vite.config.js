@@ -5,19 +5,31 @@ import { nodePolyfills } from "vite-plugin-node-polyfills";
 export default defineConfig({
   plugins: [
     react(),
-    // Injects Buffer, process, global at build-transform level
-    // Required by @shelby-protocol/reed-solomon which calls Buffer.from()
-    // at WASM module initialization (line 1 of the module) before any
-    // runtime polyfill can execute.
     nodePolyfills({
-      globals: {
-        Buffer: true,
-        global: true,
-        process: true,
-      },
+      globals: { Buffer: true, global: true, process: true },
       protocolImports: true,
     }),
   ],
+
+  // Mark optional wallet dependencies as external
+  // (Mizu, Telegram, old Aptos SDK — we don't use these)
+  build: {
+    rollupOptions: {
+      external: [
+        "@mizuwallet-sdk/core",
+        "aptos",
+        "@telegram-apps/bridge",
+      ],
+    },
+  },
+
+  optimizeDeps: {
+    exclude: [
+      "@mizuwallet-sdk/core",
+      "@telegram-apps/bridge",
+    ],
+  },
+
   server: {
     port: 5173,
     proxy: {
