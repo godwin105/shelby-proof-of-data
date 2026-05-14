@@ -10,7 +10,6 @@ class ProofRequest(BaseModel):
     file_type: Optional[str] = None
     shelby_blob_id: str
     shelby_blob_url: Optional[str] = None
-    owner_address: Optional[str] = None
 
 
 class ProofResponse(BaseModel):
@@ -22,7 +21,6 @@ class ProofResponse(BaseModel):
     shelby_blob_id: str
     shelby_blob_url: Optional[str] = None
     aptos_tx_hash: Optional[str] = None
-    owner_address: Optional[str] = None
     timestamp: datetime
 
     class Config:

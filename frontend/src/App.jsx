@@ -8,10 +8,12 @@ import { AptosWalletAdapterProvider } from "@aptos-labs/wallet-adapter-react";
 
 import Navbar from "./components/Navbar";
 import WalletModal from "./components/WalletModal";
+import { WalletModalProvider } from "./context/WalletModalContext";
+
 import HomePage from "./pages/HomePage";
+import ProvePage from "./pages/ProvePage";
 import VerifyPage from "./pages/VerifyPage";
 import AboutPage from "./pages/AboutPage";
-import { WalletModalProvider } from "./context/WalletModalContext";
 
 const queryClient = new QueryClient();
 
@@ -34,7 +36,7 @@ export default function App() {
           <WalletModalProvider>
             <BrowserRouter>
               <Toaster
-                position="top-center"
+                position="top-right"
                 toastOptions={{
                   style: {
                     background: "#111518",
@@ -49,7 +51,7 @@ export default function App() {
                 }}
               />
 
-              {/* Global wallet modal — rendered above everything */}
+              {/* Global wallet modal — z-50, covers navbar */}
               <WalletModal />
 
               <div className="min-h-screen flex flex-col">
@@ -57,16 +59,22 @@ export default function App() {
                 <main className="flex-1 w-full">
                   <Routes>
                     <Route path="/"       element={<HomePage />} />
+                    <Route path="/prove"  element={<ProvePage />} />
                     <Route path="/verify" element={<VerifyPage />} />
                     <Route path="/about"  element={<AboutPage />} />
                   </Routes>
                 </main>
-                <footer className="border-t border-shelby-border py-5 text-center px-4">
-                  <p className="text-xs font-mono text-shelby-muted">
-                    Shelby Proof-of-Data · Built on{" "}
-                    <span className="text-shelby-accent">Aptos</span> ·{" "}
-                    <span className="text-shelby-accent">Shelby Network</span>
-                  </p>
+                <footer className="border-t border-shelby-border py-6">
+                  <div className="max-w-5xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <p className="text-xs font-mono text-shelby-muted">
+                      © 2025 Shelby Proof-of-Data
+                    </p>
+                    <p className="text-xs font-mono text-shelby-muted">
+                      Built on{" "}
+                      <span className="text-shelby-accent">Aptos</span> ·{" "}
+                      <span className="text-shelby-accent">Shelby Network</span>
+                    </p>
+                  </div>
                 </footer>
               </div>
             </BrowserRouter>

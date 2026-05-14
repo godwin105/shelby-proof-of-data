@@ -9,12 +9,11 @@ function truncate(addr) {
   return `${str.slice(0, 6)}…${str.slice(-4)}`;
 }
 
-export default function WalletButton({ large = false }) {
+export default function WalletButton() {
   const { account, connected, disconnect } = useWallet();
   const { openModal } = useWalletModal();
   const [showMenu, setShowMenu] = useState(false);
 
-  // Connected state
   if (connected && account) {
     const addressStr = typeof account.address === "string"
       ? account.address
@@ -24,23 +23,21 @@ export default function WalletButton({ large = false }) {
       <div className="relative">
         <button
           onClick={() => setShowMenu((o) => !o)}
-          className={`flex items-center gap-2 rounded-xl border border-shelby-success/30 bg-shelby-success/10 text-shelby-success font-mono hover:bg-shelby-success/20 transition-all
-            ${large ? "px-5 py-2.5 text-sm" : "px-3 py-1.5 text-xs"}`}
+          className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-shelby-success/30 bg-shelby-success/10 text-shelby-success text-xs font-mono hover:bg-shelby-success/20 transition-all"
         >
           <span className="w-1.5 h-1.5 rounded-full bg-shelby-success animate-pulse" />
           {truncate(addressStr)}
-          <ChevronDown size={12} />
+          <ChevronDown size={11} />
         </button>
 
         {showMenu && (
           <>
             <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-            <div className="absolute right-0 mt-2 w-56 glass rounded-xl border border-shelby-border shadow-xl z-50 overflow-hidden">
+            <div className="absolute right-0 mt-2 w-56 rounded-xl border border-shelby-border shadow-xl z-50 overflow-hidden"
+              style={{ background: "#0E1215" }}>
               <div className="px-4 py-3 border-b border-shelby-border">
-                <p className="text-xs text-shelby-muted">Connected wallet</p>
-                <p className="text-xs font-mono text-shelby-text mt-0.5 truncate">
-                  {addressStr}
-                </p>
+                <p className="text-xs text-shelby-muted">Connected</p>
+                <p className="text-xs font-mono text-shelby-text mt-0.5 truncate">{addressStr}</p>
               </div>
               <button
                 onClick={() => { disconnect(); setShowMenu(false); }}
@@ -55,14 +52,12 @@ export default function WalletButton({ large = false }) {
     );
   }
 
-  // Not connected — open modal
   return (
     <button
       onClick={openModal}
-      className={`flex items-center gap-2 rounded-xl bg-shelby-accent text-shelby-bg font-semibold hover:brightness-110 transition-all accent-glow
-        ${large ? "px-6 py-3 text-sm" : "px-3 py-1.5 text-xs"}`}
+      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-shelby-accent text-shelby-bg text-sm font-semibold hover:brightness-110 transition-all accent-glow"
     >
-      <Wallet size={large ? 16 : 13} />
+      <Wallet size={14} />
       Connect Wallet
     </button>
   );
