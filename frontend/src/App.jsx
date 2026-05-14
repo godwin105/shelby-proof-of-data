@@ -10,13 +10,15 @@ import Navbar from "./components/Navbar";
 import WalletModal from "./components/WalletModal";
 import { WalletModalProvider } from "./context/WalletModalContext";
 
-import HomePage from "./pages/HomePage";
-import ProvePage from "./pages/ProvePage";
+import HomePage   from "./pages/HomePage";
+import ProvePage  from "./pages/ProvePage";
 import VerifyPage from "./pages/VerifyPage";
-import AboutPage from "./pages/AboutPage";
+import AboutPage  from "./pages/AboutPage";
 
 const queryClient = new QueryClient();
 
+// Aptos Labs API key — authenticates against the Shelby testnet node endpoint
+// Set VITE_APTOS_API_KEY in frontend/.env (starts with AG-)
 const aptosConfig = new AptosConfig({
   network: Network.TESTNET,
   ...(import.meta.env.VITE_APTOS_API_KEY && {
@@ -26,7 +28,11 @@ const aptosConfig = new AptosConfig({
   }),
 });
 
-const shelbyClient = new ShelbyClient({ network: Network.TESTNET, aptosConfig });
+// Shelby client — uses Aptos testnet with the API key for authentication
+const shelbyClient = new ShelbyClient({
+  network: Network.TESTNET,
+  aptosConfig,
+});
 
 export default function App() {
   return (
@@ -51,7 +57,7 @@ export default function App() {
                 }}
               />
 
-              {/* Global wallet modal — z-50, covers navbar */}
+              {/* Global wallet modal — z-50 covers navbar */}
               <WalletModal />
 
               <div className="min-h-screen flex flex-col">

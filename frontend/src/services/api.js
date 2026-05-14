@@ -4,6 +4,7 @@ const api = axios.create({ baseURL: "/api/v1", timeout: 120_000 });
 
 /**
  * Compute SHA-256 hash of a file using the browser Web Crypto API.
+ * The file never leaves the browser — hashed locally.
  */
 export async function computeSHA256(file) {
   const buffer = await file.arrayBuffer();
@@ -14,17 +15,26 @@ export async function computeSHA256(file) {
 }
 
 /**
- * Submit proof metadata to backend after Shelby upload is complete.
- * Backend records the hash on Aptos and saves to MySQL.
+ * Submit proof metadata to backend after Shelby upload completes.
+ * Sends the real Shelby blob ID, blob URL and Aptos tx hash.
  */
-export async function submitProof({ fileHash, fileName, fileSize, fileType, shelbyBlobId, shelbyBlobUrl }) {
+export async function submitProof({
+  fileHash,
+  fileName,
+  fileSize,
+  fileType,
+  shelbyBlobId,
+  shelbyBlobUrl,
+  aptosTxHash,
+}) {
   const { data } = await api.post("/proof", {
-    file_hash: fileHash,
-    file_name: fileName,
-    file_size: fileSize,
-    file_type: fileType,
+    file_hash:      fileHash,
+    file_name:      fileName,
+    file_size:      fileSize,
+    file_type:      fileType,
     shelby_blob_id: shelbyBlobId,
     shelby_blob_url: shelbyBlobUrl ?? null,
+    aptos_tx_hash:  aptosTxHash   ?? null,
   });
   return data;
 }
@@ -38,7 +48,8 @@ export async function verifyByHash(hash) {
 }
 
 /**
- * Verify a proof by hashing the original file in-browser.
+ * Verify a proof by uploading the original file.
+ * The file is hashed in-browser — never sent to the server.
  */
 export async function verifyByFile(file) {
   const fileHash = await computeSHA256(file);

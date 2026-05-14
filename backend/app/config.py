@@ -3,14 +3,13 @@ from typing import Optional
 
 
 class Settings(BaseSettings):
+    # MySQL
     DATABASE_URL: str
 
-    # Aptos — optional at startup; required only when submitting transactions
-    APTOS_NODE_URL: str = "https://fullnode.devnet.aptoslabs.com/v1"
-    APTOS_PRIVATE_KEY: Optional[str] = None
-    APTOS_MODULE_ADDRESS: Optional[str] = None
+    # Aptos node — testnet
+    APTOS_NODE_URL: str = "https://fullnode.testnet.aptoslabs.com/v1"
 
-    # Shelby Storage
+    # Shelby decentralized storage
     SHELBY_API_URL: Optional[str] = None
     SHELBY_API_KEY: Optional[str] = None
 

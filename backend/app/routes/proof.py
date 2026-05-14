@@ -5,16 +5,22 @@ import traceback
 from ..database import get_db
 from ..models import Proof
 from ..schemas import ProofRequest, UploadResponse
-from ..services.aptos import aptos_service
-from ..config import settings
 
 router = APIRouter(prefix="/api/v1", tags=["Proof"])
 
 
 @router.post("/proof", response_model=UploadResponse)
 async def create_proof(payload: ProofRequest, db: Session = Depends(get_db)):
+    """
+    Receives proof metadata from the frontend after:
+    1. File uploaded to Shelby (frontend)
+    2. Aptos transaction signed by user's wallet (frontend)
+
+    Backend saves the proof to MySQL for fast lookup and verification.
+    No private keys used — everything signed on the frontend by the user.
+    """
     try:
-        # Check for duplicate
+        # Check for duplicate proof
         existing = db.query(Proof).filter(Proof.file_hash == payload.file_hash).first()
         if existing:
             return UploadResponse(
@@ -23,15 +29,7 @@ async def create_proof(payload: ProofRequest, db: Session = Depends(get_db)):
                 proof=existing,
             )
 
-        # Record on Aptos blockchain (non-fatal if not configured)
-        aptos_tx_hash = None
-        if settings.APTOS_PRIVATE_KEY and settings.APTOS_MODULE_ADDRESS:
-            try:
-                aptos_tx_hash = await aptos_service.record_proof(payload.file_hash)
-            except Exception as e:
-                print(f"Aptos recording skipped: {e}")
-
-        # Save proof to MySQL — hash and metadata only, no user details
+        # Save proof — aptos_tx_hash comes from the Shelby SDK upload response
         proof = Proof(
             file_hash=payload.file_hash,
             file_name=payload.file_name,
@@ -39,7 +37,7 @@ async def create_proof(payload: ProofRequest, db: Session = Depends(get_db)):
             file_type=payload.file_type,
             shelby_blob_id=payload.shelby_blob_id,
             shelby_blob_url=payload.shelby_blob_url,
-            aptos_tx_hash=aptos_tx_hash,
+            aptos_tx_hash=payload.aptos_tx_hash,
         )
         db.add(proof)
         db.commit()
