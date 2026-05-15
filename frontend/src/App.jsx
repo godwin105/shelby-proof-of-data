@@ -19,14 +19,12 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AptosWalletAdapterProvider
-        autoConnect={true}
-        dappConfig={{
-          network: Network.TESTNET,
-          aptosApiKeys: {
-            testnet: import.meta.env.VITE_APTOS_API_KEY,
-          },
-        }}
-      >
+  autoConnect={true}
+  dappConfig={{
+    network: Network.TESTNET,
+    aptosApiKeys: { testnet: import.meta.env.VITE_SHELBY_API_KEY },
+  }}
+>
         <WalletModalProvider>
           <BrowserRouter>
             <Toaster
