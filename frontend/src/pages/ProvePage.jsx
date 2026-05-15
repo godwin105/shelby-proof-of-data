@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import { Shield } from "lucide-react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { useUploadBlobs } from "@shelby-protocol/react";
+import { AccountAddress } from "@aptos-labs/ts-sdk";
 
 import DropZone from "../components/DropZone";
 import ProofCard from "../components/ProofCard";
@@ -14,13 +15,12 @@ import { shelbyClient } from "../lib/shelby";
 const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 
 export default function ProvePage() {
-  const [file, setFile]           = useState(null);
-  const [proof, setProof]         = useState(null);
-  const [loading, setLoading]     = useState(false);
-  const [step, setStep]           = useState(0);
+  const [file, setFile]               = useState(null);
+  const [proof, setProof]             = useState(null);
+  const [loading, setLoading]         = useState(false);
+  const [step, setStep]               = useState(0);
   const [currentFile, setCurrentFile] = useState(null);
 
-  // Get wallet info and signing function directly from wallet adapter
   const { account, signAndSubmitTransaction, connected } = useWallet();
 
   const uploadBlobs = useUploadBlobs({
@@ -30,7 +30,6 @@ export default function ProvePage() {
         setStep(3);
         await delay(400);
 
-        // Extract real Shelby blob info from response
         const blobResult    = uploadedBlobs?.[0];
         const shelbyBlobId  = blobResult?.blobId  ?? blobResult?.name  ?? `shelby-${Date.now()}`;
         const shelbyBlobUrl = blobResult?.url      ?? null;
@@ -38,10 +37,8 @@ export default function ProvePage() {
           ?? blobResult?.transactionHash
           ?? null;
 
-        // Hash the file in browser
         const fileHash = await computeSHA256(currentFile);
 
-        // Send proof metadata to backend
         const result = await submitProof({
           fileHash,
           fileName:     currentFile.name,
@@ -55,11 +52,8 @@ export default function ProvePage() {
         setStep(4);
         setProof(result.proof);
 
-        if (result.success) {
-          toast.success("File stored on Shelby & anchored on Aptos! ✓");
-        } else {
-          toast("This file already has a proof record.", { icon: "ℹ️" });
-        }
+        if (result.success) toast.success("File stored on Shelby & anchored on Aptos! ✓");
+        else toast("This file already has a proof record.", { icon: "ℹ️" });
       } catch (err) {
         toast.error(err?.response?.data?.detail || "Failed to save proof.");
         setStep(0);
@@ -74,8 +68,6 @@ export default function ProvePage() {
         toast.error("Transaction rejected in Petra wallet.");
       } else if (msg.includes("insufficient") || msg.includes("balance")) {
         toast.error("Insufficient ShelbyUSD or APT in your wallet.");
-      } else if (msg.includes("401") || msg.includes("Unauthorized")) {
-        toast.error("API auth failed. Check VITE_APTOS_API_KEY in .env");
       } else {
         toast.error(`Upload failed: ${msg}`);
       }
@@ -100,23 +92,23 @@ export default function ProvePage() {
       await delay(300);
       setStep(2);
 
-      // Convert file to Uint8Array
       const arrayBuffer = await file.arrayBuffer();
       const blobData    = new Uint8Array(arrayBuffer);
 
-      // Expiration: 365 days from now (in microseconds)
-      const expirationMicros =
-        Date.now() * 1000 + 365 * 24 * 60 * 60 * 1000 * 1000;
+      // Convert wallet address to AccountAddress type expected by Shelby SDK
+      const addressStr = typeof account.address === "string"
+        ? account.address
+        : account.address?.toString();
 
-      // Upload — Petra wallet popup will appear for user to approve
-      // Signer uses wallet adapter directly — NO private key needed
+      const accountAddress = AccountAddress.fromString(addressStr);
+
       uploadBlobs.mutate({
         signer: {
-          account: account.accountAddress,
+          account: accountAddress,
           signAndSubmitTransaction,
         },
         blobs: [{ blobName: file.name, blobData }],
-        expirationMicros,
+        expirationMicros: Date.now() * 1000 + 365 * 24 * 60 * 60 * 1000 * 1000,
       });
 
     } catch (err) {
@@ -139,7 +131,6 @@ export default function ProvePage() {
   return (
     <div className="max-w-5xl mx-auto px-6 py-16 sm:py-20">
 
-      {/* Header */}
       <div className="mb-10">
         <p className="text-xs font-mono text-shelby-muted uppercase tracking-widest mb-3 flex items-center gap-2">
           <span className="inline-block w-4 h-px bg-shelby-accent" />
@@ -157,13 +148,12 @@ export default function ProvePage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
-        {/* Left — upload */}
+        {/* Left */}
         <div className="space-y-5">
           {!connected ? (
             <WalletGate />
           ) : (
             <>
-              {/* Wallet badge */}
               <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-shelby-success/5 border border-shelby-success/20 w-fit">
                 <span className="w-2 h-2 rounded-full bg-shelby-success animate-pulse shrink-0" />
                 <p className="text-xs font-mono text-shelby-success truncate max-w-xs">
@@ -190,7 +180,7 @@ export default function ProvePage() {
                     <p className="text-xs text-shelby-muted">
                       Stored on <span className="text-shelby-text">Shelby</span> ·
                       Anchored on <span className="text-shelby-text">Aptos</span> ·
-                      Fees paid in <span className="text-shelby-text">ShelbyUSD + APT</span>
+                      Fees in <span className="text-shelby-text">ShelbyUSD + APT</span>
                     </p>
                   )}
 
@@ -228,7 +218,7 @@ export default function ProvePage() {
           )}
         </div>
 
-        {/* Right — info */}
+        {/* Right */}
         {!proof && (
           <div className="glass rounded-2xl p-6 space-y-4">
             <p className="text-xs font-mono text-shelby-muted uppercase tracking-widest">
@@ -248,7 +238,6 @@ export default function ProvePage() {
                 </div>
               </div>
             ))}
-
             <div className="border-t border-shelby-border pt-4 space-y-2">
               <p className="text-xs font-mono text-shelby-muted uppercase tracking-widest">Fees</p>
               <div className="flex justify-between">
