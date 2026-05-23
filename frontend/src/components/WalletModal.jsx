@@ -5,16 +5,12 @@ import { useWalletModal } from "../context/WalletModalContext";
 
 function WalletIcon({ wallet }) {
   const icon = wallet.icon;
-  const iconSrc = typeof icon === "string"
-    ? icon
-    : icon?.light ?? icon?.dark ?? null;
+  const iconSrc = typeof icon === "string" ? icon : icon?.light ?? icon?.dark ?? null;
 
   if (iconSrc) {
-    return (
-      <img src={iconSrc} alt={wallet.name}
-        className="w-9 h-9 rounded-xl object-contain shrink-0" />
-    );
+    return <img src={iconSrc} alt={wallet.name} className="w-9 h-9 rounded-xl object-contain shrink-0" />;
   }
+
   return (
     <div className="w-9 h-9 rounded-xl bg-shelby-surface border border-shelby-border flex items-center justify-center text-shelby-muted text-xs font-mono font-bold shrink-0">
       {wallet.name.slice(0, 2).toUpperCase()}
@@ -26,13 +22,16 @@ export default function WalletModal() {
   const { isOpen, closeModal } = useWalletModal();
   const { connect, wallets } = useWallet();
 
-  // Lock body scroll, close on Escape
   useEffect(() => {
-    const onKey = (e) => { if (e.key === "Escape") closeModal(); };
+    const onKey = (event) => {
+      if (event.key === "Escape") closeModal();
+    };
+
     if (isOpen) {
       document.addEventListener("keydown", onKey);
       document.body.style.overflow = "hidden";
     }
+
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
@@ -42,116 +41,87 @@ export default function WalletModal() {
   if (!isOpen) return null;
 
   const isSocial = (name) =>
-    ["google", "apple", "continue"].some((k) => name.toLowerCase().includes(k));
+    ["google", "apple", "continue"].some((key) => name.toLowerCase().includes(key));
 
-  const extensionWallets = wallets.filter((w) => !isSocial(w.name));
-  const socialWallets = wallets.filter((w) => isSocial(w.name));
+  const extensionWallets = wallets.filter((wallet) => !isSocial(wallet.name));
+  const socialWallets = wallets.filter((wallet) => isSocial(wallet.name));
 
   function handleConnect(walletName) {
     connect(walletName);
     closeModal();
   }
 
+  const walletButton = (wallet, soft = false) => (
+    <button
+      key={wallet.name}
+      type="button"
+      onClick={() => handleConnect(wallet.name)}
+      className={`flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all text-left border ${
+        soft
+          ? "bg-shelby-bg/60 border-shelby-border hover:border-shelby-accent2/45"
+          : "bg-shelby-surface border-shelby-border hover:border-shelby-accent/45 hover:bg-shelby-accent/5"
+      }`}
+    >
+      <WalletIcon wallet={wallet} />
+      <span className="text-base font-semibold text-shelby-text truncate">{wallet.name}</span>
+    </button>
+  );
+
   return (
-    /* Full-screen overlay — z-50 so it covers navbar too */
     <div
-      className="fixed inset-0 z-50 overflow-y-auto"
-      style={{ backgroundColor: "rgba(0,0,0,0.82)" }}
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/80 px-4 py-8"
       onClick={closeModal}
     >
-      {/* Centered card — max-width but full content height */}
-      <div className="flex min-h-full items-center justify-center px-4 py-8">
+      <div className="flex min-h-full items-center justify-center">
         <div
-          className="w-full max-w-lg rounded-2xl overflow-hidden animate-slide-up"
-          style={{ background: "#0E1215", border: "1px solid #1E2428" }}
-          onClick={(e) => e.stopPropagation()}
+          className="w-full max-w-lg rounded-2xl overflow-hidden animate-slide-up bg-shelby-bg border border-shelby-border shadow-2xl"
+          onClick={(event) => event.stopPropagation()}
         >
-          {/* Header */}
-          <div className="px-8 pt-10 pb-6">
-            <div className="flex items-start justify-between mb-4">
-              <h2 className="font-display text-2xl font-extrabold text-shelby-text">
-                Connect a wallet
-              </h2>
+          <div className="px-5 sm:px-8 pt-8 pb-5">
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <div>
+                <h2 className="font-display text-2xl font-extrabold text-shelby-text">
+                  Connect a wallet
+                </h2>
+                <p className="text-sm text-shelby-muted leading-relaxed mt-2">
+                  Shelby PoD uses your Aptos wallet for signing proof transactions.
+                </p>
+              </div>
               <button
+                type="button"
                 onClick={closeModal}
-                className="p-1.5 rounded-lg text-shelby-muted hover:text-shelby-text hover:bg-shelby-border transition-colors"
+                aria-label="Close wallet modal"
+                className="h-9 w-9 rounded-xl text-shelby-muted hover:text-shelby-text hover:bg-white/5 transition-colors grid place-items-center shrink-0"
               >
                 <X size={18} />
               </button>
             </div>
-            <p className="text-sm text-shelby-muted leading-relaxed">
-              Shelby PoD uses your Aptos wallet for both sign-in and
-              proving your files on Shelby.
-            </p>
           </div>
 
-          {/* Extension wallets */}
           {extensionWallets.length > 0 && (
-            <div className="px-8 pb-6">
-              <p className="text-xs font-mono text-shelby-muted uppercase tracking-widest mb-4">
-                Use a wallet extension
+            <div className="px-5 sm:px-8 pb-6">
+              <p className="text-xs font-mono text-shelby-muted uppercase tracking-widest mb-3">
+                Wallet extensions
               </p>
               <div className="flex flex-col gap-2.5">
-                {extensionWallets.map((wallet) => (
-                  <button
-                    key={wallet.name}
-                    onClick={() => handleConnect(wallet.name)}
-                    className="flex items-center gap-4 w-full px-5 py-4 rounded-xl transition-all text-left"
-                    style={{ background: "#161B1F", border: "1px solid #252D33" }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = "#00E5CC40";
-                      e.currentTarget.style.background = "#00E5CC06";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = "#252D33";
-                      e.currentTarget.style.background = "#161B1F";
-                    }}
-                  >
-                    <WalletIcon wallet={wallet} />
-                    <span className="text-base font-semibold text-shelby-text">
-                      {wallet.name}
-                    </span>
-                  </button>
-                ))}
+                {extensionWallets.map((wallet) => walletButton(wallet))}
               </div>
             </div>
           )}
 
-          {/* Social sign-in */}
           {socialWallets.length > 0 && (
-            <div className="px-8 pb-6">
-              <p className="text-xs font-mono text-shelby-muted uppercase tracking-widest mb-4">
-                Or sign in with
+            <div className="px-5 sm:px-8 pb-6">
+              <p className="text-xs font-mono text-shelby-muted uppercase tracking-widest mb-3">
+                Social sign-in
               </p>
               <div className="flex flex-col gap-2.5">
-                {socialWallets.map((wallet) => (
-                  <button
-                    key={wallet.name}
-                    onClick={() => handleConnect(wallet.name)}
-                    className="flex items-center gap-4 w-full px-5 py-4 rounded-xl transition-all text-left"
-                    style={{ background: "#161B1F", border: "1px solid #252D33" }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = "#3A4A58";
-                      e.currentTarget.style.background = "#1A1F24";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = "#252D33";
-                      e.currentTarget.style.background = "#161B1F";
-                    }}
-                  >
-                    <WalletIcon wallet={wallet} />
-                    <span className="text-base font-semibold text-shelby-text">
-                      {wallet.name}
-                    </span>
-                  </button>
-                ))}
+                {socialWallets.map((wallet) => walletButton(wallet, true))}
               </div>
             </div>
           )}
 
-          {/* No wallets */}
           {wallets.length === 0 && (
-            <div className="px-8 pb-8 text-center space-y-4">
+            <div className="px-5 sm:px-8 pb-8 text-center space-y-4">
               <p className="text-sm text-shelby-muted">No wallets detected in this browser.</p>
               <a
                 href="https://petra.app"
@@ -159,15 +129,14 @@ export default function WalletModal() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-shelby-accent text-shelby-bg text-sm font-semibold hover:brightness-110 transition-all"
               >
-                Install Petra Wallet →
+                Install Petra Wallet
               </a>
             </div>
           )}
 
-          {/* Footer */}
-          <div className="px-8 pb-8 pt-2">
-            <p className="text-xs font-mono" style={{ color: "#3A4A58" }}>
-              Supports Petra · OKX · Martian · any Aptos-compatible wallet
+          <div className="px-5 sm:px-8 pb-8 pt-2">
+            <p className="text-xs font-mono text-shelby-muted">
+              Supports Petra, OKX, Martian, and compatible Aptos wallets
             </p>
           </div>
         </div>

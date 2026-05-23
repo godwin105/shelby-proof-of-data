@@ -1,6 +1,8 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
+import wasm from "vite-plugin-wasm";
+import topLevelAwait from "vite-plugin-top-level-await";
 
 export default defineConfig({
   plugins: [
@@ -28,6 +30,8 @@ export default defineConfig({
       },
     },
 
+    wasm(),
+    topLevelAwait(),
     react(),
 
     nodePolyfills({
@@ -37,6 +41,11 @@ export default defineConfig({
   ],
 
   optimizeDeps: {
+    exclude: [
+      "@shelby-protocol/react",
+      "@shelby-protocol/sdk/browser",
+      "@shelby-protocol/clay-codes",
+    ],
     esbuildOptions: {
       define: { global: "globalThis" },
     },

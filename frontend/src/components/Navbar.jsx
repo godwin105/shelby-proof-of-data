@@ -15,76 +15,78 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-shelby-border"
-      style={{ background: "rgba(10,13,15,0.92)", backdropFilter: "blur(12px)" }}>
-
-      <div className="max-w-5xl mx-auto px-6 h-16 flex items-center">
-
-        {/* Logo — left */}
-        <Link to="/" className="flex items-center gap-2 group shrink-0 mr-auto" onClick={() => setMenuOpen(false)}>
-          <div className="w-7 h-7 rounded-lg bg-shelby-accent/10 border border-shelby-accent/30 flex items-center justify-center group-hover:bg-shelby-accent/20 transition-colors">
-            <ShieldCheck size={13} className="text-shelby-accent" />
+    <header className="sticky top-0 z-40 w-full border-b border-shelby-border bg-shelby-bg/90 backdrop-blur-xl">
+      <div className="page-shell h-16 flex items-center gap-3">
+        <Link
+          to="/"
+          className="flex items-center gap-2.5 group shrink-0"
+          onClick={() => setMenuOpen(false)}
+        >
+          <div className="w-9 h-9 rounded-xl bg-shelby-accent/10 border border-shelby-accent/30 flex items-center justify-center group-hover:bg-shelby-accent/20 transition-colors">
+            <ShieldCheck size={17} className="text-shelby-accent" />
           </div>
-          <span className="font-display font-bold text-base tracking-tight text-shelby-text">
+          <span className="font-display font-bold text-base tracking-tight text-shelby-text whitespace-nowrap">
             Shelby <span className="text-shelby-accent">PoD</span>
           </span>
         </Link>
 
-        {/* Nav links — centered (desktop) */}
-        <nav className="hidden sm:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
-          {links.map(({ to, label }) => (
-            <Link
-              key={to}
-              to={to}
-              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-150
-                ${pathname === to
-                  ? "text-shelby-text"
-                  : "text-shelby-muted hover:text-shelby-text"
+        <nav className="hidden md:flex items-center gap-1 mx-auto rounded-full border border-shelby-border bg-shelby-surface/70 p-1">
+          {links.map(({ to, label }) => {
+            const active = pathname === to;
+            return (
+              <Link
+                key={to}
+                to={to}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-150 ${
+                  active
+                    ? "bg-shelby-accent text-shelby-bg"
+                    : "text-shelby-muted hover:text-shelby-text hover:bg-white/5"
                 }`}
-            >
-              {label}
-              {pathname === to && (
-                <span className="block h-0.5 bg-shelby-accent rounded-full mt-0.5 mx-auto" />
-              )}
-            </Link>
-          ))}
+              >
+                {label}
+              </Link>
+            );
+          })}
         </nav>
 
-        {/* Wallet — right */}
-        <div className="hidden sm:flex ml-auto">
+        <div className="hidden md:flex shrink-0">
           <WalletButton />
         </div>
 
-        {/* Mobile hamburger */}
-        <div className="flex sm:hidden items-center gap-2 ml-auto">
-          <WalletButton />
+        <div className="flex md:hidden items-center gap-2 ml-auto min-w-0">
+          <WalletButton compact />
           <button
-            className="p-1.5 rounded-lg text-shelby-muted hover:text-shelby-text transition-colors"
-            onClick={() => setMenuOpen((o) => !o)}
+            type="button"
+            aria-label="Toggle navigation"
+            className="h-10 w-10 rounded-xl border border-shelby-border text-shelby-muted hover:text-shelby-text hover:bg-white/5 transition-colors grid place-items-center shrink-0"
+            onClick={() => setMenuOpen((open) => !open)}
           >
             {menuOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile menu */}
       {menuOpen && (
-        <div className="sm:hidden border-t border-shelby-border px-6 py-3 flex flex-col gap-1"
-          style={{ background: "#0A0D0F" }}>
-          {links.map(({ to, label }) => (
-            <Link
-              key={to}
-              to={to}
-              onClick={() => setMenuOpen(false)}
-              className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all
-                ${pathname === to
-                  ? "text-shelby-accent bg-shelby-accent/5"
-                  : "text-shelby-muted hover:text-shelby-text"
-                }`}
-            >
-              {label}
-            </Link>
-          ))}
+        <div className="md:hidden border-t border-shelby-border bg-shelby-bg/95">
+          <div className="page-shell py-3 grid grid-cols-2 gap-2">
+            {links.map(({ to, label }) => {
+              const active = pathname === to;
+              return (
+                <Link
+                  key={to}
+                  to={to}
+                  onClick={() => setMenuOpen(false)}
+                  className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                    active
+                      ? "text-shelby-bg bg-shelby-accent"
+                      : "text-shelby-muted bg-shelby-surface hover:text-shelby-text"
+                  }`}
+                >
+                  {label}
+                </Link>
+              );
+            })}
+          </div>
         </div>
       )}
     </header>
