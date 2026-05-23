@@ -58,7 +58,7 @@ export default function WalletModal() {
       onClick={() => handleConnect(wallet.name)}
       className={`flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all text-left border ${
         soft
-          ? "bg-shelby-bg/60 border-shelby-border hover:border-shelby-accent2/45"
+          ? "bg-shelby-bg/60 border-shelby-border hover:border-shelby-accent/45"
           : "bg-shelby-surface border-shelby-border hover:border-shelby-accent/45 hover:bg-shelby-accent/5"
       }`}
     >
@@ -127,7 +127,7 @@ export default function WalletModal() {
                 href="https://petra.app"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-shelby-accent text-shelby-bg text-sm font-semibold hover:brightness-110 transition-all"
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-shelby-accent text-shelby-onAccent text-sm font-semibold hover:brightness-110 transition-all"
               >
                 Install Petra Wallet
               </a>

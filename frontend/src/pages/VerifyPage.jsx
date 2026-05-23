@@ -44,7 +44,7 @@ export default function VerifyPage() {
   }
 
   return (
-    <div className="page-shell py-10 sm:py-14 lg:py-16">
+    <div className="page-shell pt-6 sm:pt-8 lg:pt-10 pb-10 sm:pb-14 lg:pb-16">
       <div className="mx-auto max-w-3xl text-center mb-8">
         <p className="section-kicker mb-3 justify-center">Verification</p>
         <h1 className="font-display text-3xl sm:text-5xl font-semibold text-shelby-text leading-tight">
@@ -71,7 +71,7 @@ export default function VerifyPage() {
                   }}
                   className={`min-h-11 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${
                     active
-                      ? "bg-shelby-accent text-shelby-bg font-semibold"
+                      ? "bg-shelby-accent text-shelby-onAccent font-semibold"
                       : "text-shelby-muted hover:text-shelby-text hover:bg-white/5"
                   }`}
                 >
@@ -107,7 +107,7 @@ export default function VerifyPage() {
             className={`w-full min-h-12 rounded-xl font-display font-semibold text-sm tracking-wide transition-all duration-200 flex items-center justify-center gap-2 ${
               loading
                 ? "bg-shelby-border text-shelby-muted cursor-not-allowed"
-                : "bg-shelby-accent text-shelby-bg hover:brightness-110 accent-glow active:scale-[0.99]"
+                : "bg-shelby-accent text-shelby-onAccent hover:brightness-110 accent-glow active:scale-[0.99]"
             }`}
           >
             <Search size={16} />

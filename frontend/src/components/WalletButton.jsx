@@ -61,7 +61,7 @@ export default function WalletButton({ compact = false }) {
     <button
       type="button"
       onClick={openModal}
-      className={`h-10 inline-flex items-center justify-center gap-2 rounded-xl bg-shelby-accent text-shelby-bg font-semibold hover:brightness-110 transition-all accent-glow ${
+      className={`h-10 inline-flex items-center justify-center gap-2 rounded-xl bg-shelby-accent text-shelby-onAccent font-semibold hover:brightness-110 transition-all accent-glow ${
         compact ? "w-10 px-0" : "px-4 text-sm"
       }`}
       aria-label="Connect wallet"

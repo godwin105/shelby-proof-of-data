@@ -19,7 +19,7 @@ export default function WalletGate() {
       <button
         type="button"
         onClick={openModal}
-        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-shelby-accent text-shelby-bg text-sm font-semibold hover:brightness-110 transition-all accent-glow"
+        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-shelby-accent text-shelby-onAccent text-sm font-semibold hover:brightness-110 transition-all accent-glow"
       >
         <Wallet size={15} />
         Connect Wallet

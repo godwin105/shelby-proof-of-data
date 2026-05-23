@@ -1,3 +1,8 @@
+const withOpacity = (name) => ({ opacityValue }) => {
+  if (opacityValue === undefined) return `rgb(var(${name}))`;
+  return `rgb(var(${name}) / ${opacityValue})`;
+};
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,jsx}"],
@@ -10,17 +15,18 @@ export default {
       },
       colors: {
         shelby: {
-          bg: "#050506",
-          surface: "#0B0B0E",
-          surface2: "#121218",
-          border: "#26242D",
-          accent: "#FF7AD9",
-          accent2: "#B98CFF",
-          text: "#F5F2F6",
-          muted: "#92909C",
-          success: "#FF7AD9",
-          error: "#FF5F7D",
-          warning: "#F0B866",
+          bg: withOpacity("--bg"),
+          surface: withOpacity("--surface"),
+          surface2: withOpacity("--surface-2"),
+          border: withOpacity("--border"),
+          accent: withOpacity("--accent"),
+          accent2: withOpacity("--accent"),
+          onAccent: withOpacity("--on-accent"),
+          text: withOpacity("--text"),
+          muted: withOpacity("--muted"),
+          success: withOpacity("--accent"),
+          error: withOpacity("--error"),
+          warning: withOpacity("--warning"),
         },
       },
       animation: {

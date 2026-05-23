@@ -41,7 +41,7 @@ const USE_CASES = [
 
 export default function AboutPage() {
   return (
-    <div className="page-shell py-10 sm:py-14 lg:py-16">
+    <div className="page-shell pt-6 sm:pt-8 lg:pt-10 pb-10 sm:pb-14 lg:pb-16">
       <section className="grid lg:grid-cols-[0.9fr_1.1fr] gap-6 lg:gap-8 items-start mb-10">
         <div className="min-w-0">
           <p className="section-kicker mb-3">How it works</p>

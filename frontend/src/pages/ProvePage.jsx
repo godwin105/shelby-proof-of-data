@@ -137,7 +137,7 @@ export default function ProvePage() {
     : "";
 
   return (
-    <div className="page-shell py-10 sm:py-14 lg:py-16">
+    <div className="page-shell pt-6 sm:pt-8 lg:pt-10 pb-10 sm:pb-14 lg:pb-16">
       <div className="mb-8 sm:mb-10 max-w-3xl">
         <p className="section-kicker mb-3">Proof workspace</p>
         <h1 className="font-display text-3xl sm:text-5xl font-semibold text-shelby-text leading-tight">
@@ -191,7 +191,7 @@ export default function ProvePage() {
                       flex items-center justify-center gap-2 ${
                         !file || loading || uploadBlobs.isPending
                           ? "bg-shelby-border text-shelby-muted cursor-not-allowed"
-                          : "bg-shelby-accent text-shelby-bg hover:brightness-110 accent-glow active:scale-[0.99]"
+                          : "bg-shelby-accent text-shelby-onAccent hover:brightness-110 accent-glow active:scale-[0.99]"
                       }`}
                   >
                     <Shield size={16} />

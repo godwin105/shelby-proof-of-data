@@ -31,9 +31,9 @@ export default function App() {
               position="top-right"
               toastOptions={{
                 style: {
-                  background: "#0B0B0E",
-                  color: "#F5F2F6",
-                  border: "1px solid #26242D",
+                  background: "rgb(var(--surface))",
+                  color: "rgb(var(--text))",
+                  border: "1px solid rgb(var(--border))",
                   borderRadius: "14px",
                   fontFamily: "'Inter', sans-serif",
                   fontSize: "14px",

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Diamond, Menu, X } from "lucide-react";
+import { Diamond, Menu, Moon, Sun, X } from "lucide-react";
 import WalletButton from "./WalletButton";
 
 const links = [
@@ -13,6 +13,18 @@ const links = [
 export default function Navbar() {
   const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [theme, setTheme] = useState(() => {
+    if (typeof document === "undefined") return "dark";
+    return document.documentElement.dataset.theme || "dark";
+  });
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem("shelby-theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme((current) => (current === "dark" ? "light" : "dark"));
+  const ThemeIcon = theme === "dark" ? Sun : Moon;
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-shelby-border bg-shelby-bg/90 backdrop-blur-xl">
@@ -49,11 +61,28 @@ export default function Navbar() {
           })}
         </nav>
 
-        <div className="hidden md:flex shrink-0">
+        <div className="hidden md:flex items-center gap-3 shrink-0">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+            title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+            className="h-10 w-10 rounded-xl border border-shelby-border text-shelby-muted hover:text-shelby-text hover:bg-shelby-surface transition-colors grid place-items-center"
+          >
+            <ThemeIcon size={17} />
+          </button>
           <WalletButton />
         </div>
 
         <div className="flex md:hidden items-center gap-2 ml-auto min-w-0">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+            className="h-10 w-10 rounded-xl border border-shelby-border text-shelby-muted hover:text-shelby-text hover:bg-shelby-surface transition-colors grid place-items-center shrink-0"
+          >
+            <ThemeIcon size={17} />
+          </button>
           <WalletButton compact />
           <button
             type="button"
@@ -78,7 +107,7 @@ export default function Navbar() {
                   onClick={() => setMenuOpen(false)}
                   className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                     active
-                      ? "text-shelby-bg bg-shelby-accent"
+                      ? "text-shelby-onAccent bg-shelby-accent"
                       : "text-shelby-muted bg-shelby-surface hover:text-shelby-text"
                   }`}
                 >

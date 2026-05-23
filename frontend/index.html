@@ -3,6 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <script>
+      (() => {
+        const stored = localStorage.getItem("shelby-theme");
+        const system = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        document.documentElement.dataset.theme = stored || system;
+      })();
+    </script>
     <title>Shelby - Proof of Data</title>
     <meta
       name="description"

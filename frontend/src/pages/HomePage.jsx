@@ -43,15 +43,12 @@ const USE_CASES = [
 export default function HomePage() {
   return (
     <div className="w-full">
-      <section className="page-shell pt-10 sm:pt-16 lg:pt-20 pb-12 lg:pb-18">
+      <section className="page-shell pt-6 sm:pt-8 lg:pt-10 pb-12 lg:pb-16">
         <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-8 lg:gap-10 items-center">
           <div className="min-w-0">
             <p className="section-kicker mb-5">Shelby Proof-of-Data</p>
             <h1 className="font-display font-semibold leading-[0.9] text-shelby-text text-5xl sm:text-7xl lg:text-8xl max-w-4xl">
-              Prove your file
-              <span className="block">
-                existed <em className="text-shelby-accent italic">forever.</em>
-              </span>
+              Prove your file existed <em className="text-shelby-accent italic">forever.</em>
             </h1>
             <p className="text-base sm:text-lg text-shelby-muted max-w-2xl leading-relaxed mt-6">
               Generate a local SHA-256 fingerprint, store the file on Shelby, and
@@ -61,7 +58,7 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row gap-3 mt-8 max-w-md sm:max-w-none">
               <Link
                 to="/prove"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-shelby-accent text-shelby-bg font-semibold text-sm hover:brightness-110 transition-all accent-glow"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-shelby-accent text-shelby-onAccent font-semibold text-sm hover:brightness-110 transition-all accent-glow"
               >
                 Prove a File <ArrowRight size={16} />
               </Link>
