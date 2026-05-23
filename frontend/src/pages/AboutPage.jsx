@@ -45,7 +45,7 @@ export default function AboutPage() {
       <section className="grid lg:grid-cols-[0.9fr_1.1fr] gap-6 lg:gap-8 items-start mb-10">
         <div className="min-w-0">
           <p className="section-kicker mb-3">How it works</p>
-          <h1 className="font-display text-3xl sm:text-5xl font-extrabold text-shelby-text leading-tight">
+          <h1 className="font-display text-3xl sm:text-5xl font-semibold text-shelby-text leading-tight">
             File proof with storage and blockchain finality.
           </h1>
           <p className="text-sm sm:text-base text-shelby-muted max-w-2xl leading-relaxed mt-4">
@@ -73,7 +73,7 @@ export default function AboutPage() {
 
       <section className="mb-10">
         <div className="flex items-end justify-between gap-4 mb-5">
-          <h2 className="font-display text-2xl font-extrabold text-shelby-text">Core benefits</h2>
+          <h2 className="font-display text-2xl font-semibold text-shelby-text">Core benefits</h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {FEATURES.map(({ icon: Icon, title, desc }) => (
@@ -90,7 +90,7 @@ export default function AboutPage() {
 
       <section className="grid lg:grid-cols-[1fr_22rem] gap-6 lg:gap-8 items-start">
         <div>
-          <h2 className="font-display text-2xl font-extrabold text-shelby-text mb-5">Use cases</h2>
+          <h2 className="font-display text-2xl font-semibold text-shelby-text mb-5">Use cases</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {USE_CASES.map(({ icon: Icon, label, desc }) => (
               <div key={label} className="panel p-5 flex items-start gap-4">

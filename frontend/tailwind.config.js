@@ -4,23 +4,23 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        display: ["'Syne'", "sans-serif"],
+        display: ["'Cormorant Garamond'", "serif"],
         mono: ["'JetBrains Mono'", "monospace"],
-        body: ["'DM Sans'", "sans-serif"],
+        body: ["'Inter'", "sans-serif"],
       },
       colors: {
         shelby: {
-          bg: "#070B0D",
-          surface: "#101619",
-          surface2: "#151D22",
-          border: "#223039",
-          accent: "#13E7CF",
-          accent2: "#2F80FF",
-          text: "#EDF6F8",
-          muted: "#81919E",
-          success: "#00C896",
-          error: "#FF4D6A",
-          warning: "#F5B84B",
+          bg: "#050506",
+          surface: "#0B0B0E",
+          surface2: "#121218",
+          border: "#26242D",
+          accent: "#FF7AD9",
+          accent2: "#B98CFF",
+          text: "#F5F2F6",
+          muted: "#92909C",
+          success: "#FF7AD9",
+          error: "#FF5F7D",
+          warning: "#F0B866",
         },
       },
       animation: {
@@ -36,8 +36,8 @@ export default {
           to: { opacity: 1, transform: "translateY(0)" },
         },
         glow: {
-          from: { boxShadow: "0 0 10px #00E5CC33" },
-          to: { boxShadow: "0 0 28px #00E5CC66, 0 0 60px #00E5CC22" },
+          from: { boxShadow: "0 0 10px #FF7AD933" },
+          to: { boxShadow: "0 0 28px #FF7AD966, 0 0 60px #FF7AD922" },
         },
       },
     },

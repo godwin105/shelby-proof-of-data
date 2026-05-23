@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ShieldCheck, Menu, X } from "lucide-react";
+import { Diamond, Menu, X } from "lucide-react";
 import WalletButton from "./WalletButton";
 
 const links = [
@@ -22,25 +22,25 @@ export default function Navbar() {
           className="flex items-center gap-2.5 group shrink-0"
           onClick={() => setMenuOpen(false)}
         >
-          <div className="w-9 h-9 rounded-xl bg-shelby-accent/10 border border-shelby-accent/30 flex items-center justify-center group-hover:bg-shelby-accent/20 transition-colors">
-            <ShieldCheck size={17} className="text-shelby-accent" />
+          <div className="w-9 h-9 flex items-center justify-center">
+            <Diamond size={19} className="text-shelby-accent" />
           </div>
-          <span className="font-display font-bold text-base tracking-tight text-shelby-text whitespace-nowrap">
+          <span className="font-display font-bold text-2xl leading-none text-shelby-text whitespace-nowrap">
             Shelby <span className="text-shelby-accent">PoD</span>
           </span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-1 mx-auto rounded-full border border-shelby-border bg-shelby-surface/70 p-1">
+        <nav className="hidden md:flex items-center gap-8 mx-auto font-mono">
           {links.map(({ to, label }) => {
             const active = pathname === to;
             return (
               <Link
                 key={to}
                 to={to}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-150 ${
+                className={`py-2 text-sm font-semibold transition-all duration-150 ${
                   active
-                    ? "bg-shelby-accent text-shelby-bg"
-                    : "text-shelby-muted hover:text-shelby-text hover:bg-white/5"
+                    ? "text-shelby-text"
+                    : "text-shelby-muted hover:text-shelby-text"
                 }`}
               >
                 {label}

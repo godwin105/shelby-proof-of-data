@@ -47,7 +47,7 @@ export default function VerifyPage() {
     <div className="page-shell py-10 sm:py-14 lg:py-16">
       <div className="mx-auto max-w-3xl text-center mb-8">
         <p className="section-kicker mb-3 justify-center">Verification</p>
-        <h1 className="font-display text-3xl sm:text-5xl font-extrabold text-shelby-text leading-tight">
+        <h1 className="font-display text-3xl sm:text-5xl font-semibold text-shelby-text leading-tight">
           Check a proof record.
         </h1>
         <p className="text-sm sm:text-base text-shelby-muted max-w-xl mx-auto leading-relaxed mt-3">

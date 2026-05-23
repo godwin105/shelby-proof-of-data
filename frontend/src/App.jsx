@@ -31,16 +31,16 @@ export default function App() {
               position="top-right"
               toastOptions={{
                 style: {
-                  background: "#101619",
-                  color: "#EDF6F8",
-                  border: "1px solid #223039",
+                  background: "#0B0B0E",
+                  color: "#F5F2F6",
+                  border: "1px solid #26242D",
                   borderRadius: "14px",
-                  fontFamily: "'DM Sans', sans-serif",
+                  fontFamily: "'Inter', sans-serif",
                   fontSize: "14px",
                   maxWidth: "90vw",
                 },
-                success: { iconTheme: { primary: "#00C896", secondary: "#101619" } },
-                error: { iconTheme: { primary: "#FF4D6A", secondary: "#101619" } },
+                success: { iconTheme: { primary: "#FF7AD9", secondary: "#0B0B0E" } },
+                error: { iconTheme: { primary: "#FF5F7D", secondary: "#0B0B0E" } },
               }}
             />
 

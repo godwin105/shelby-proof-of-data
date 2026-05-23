@@ -140,7 +140,7 @@ export default function ProvePage() {
     <div className="page-shell py-10 sm:py-14 lg:py-16">
       <div className="mb-8 sm:mb-10 max-w-3xl">
         <p className="section-kicker mb-3">Proof workspace</p>
-        <h1 className="font-display text-3xl sm:text-5xl font-extrabold text-shelby-text leading-tight">
+        <h1 className="font-display text-3xl sm:text-5xl font-semibold text-shelby-text leading-tight">
           Generate a tamper-proof file proof.
         </h1>
         <p className="text-sm sm:text-base text-shelby-muted max-w-2xl leading-relaxed mt-3">

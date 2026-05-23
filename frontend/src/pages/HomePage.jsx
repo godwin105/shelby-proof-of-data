@@ -47,8 +47,11 @@ export default function HomePage() {
         <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-8 lg:gap-10 items-center">
           <div className="min-w-0">
             <p className="section-kicker mb-5">Shelby Proof-of-Data</p>
-            <h1 className="font-display font-extrabold leading-[0.96] tracking-normal text-shelby-text text-4xl sm:text-6xl lg:text-7xl max-w-3xl">
-              Prove a file existed before anyone can dispute it.
+            <h1 className="font-display font-semibold leading-[0.9] text-shelby-text text-5xl sm:text-7xl lg:text-8xl max-w-4xl">
+              Prove your file
+              <span className="block">
+                existed <em className="text-shelby-accent italic">forever.</em>
+              </span>
             </h1>
             <p className="text-base sm:text-lg text-shelby-muted max-w-2xl leading-relaxed mt-6">
               Generate a local SHA-256 fingerprint, store the file on Shelby, and
@@ -127,7 +130,7 @@ export default function HomePage() {
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
           <div>
             <p className="section-kicker mb-3">Why it works</p>
-            <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-shelby-text">
+            <h2 className="font-display text-2xl sm:text-3xl font-semibold text-shelby-text">
               Built for proof, not file sharing.
             </h2>
           </div>
