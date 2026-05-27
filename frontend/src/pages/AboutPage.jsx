@@ -88,30 +88,28 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="grid lg:grid-cols-[1fr_22rem] gap-6 lg:gap-8 items-start">
-        <div>
-          <h2 className="font-display text-2xl font-semibold text-shelby-text mb-5">Use cases</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {USE_CASES.map(({ icon: Icon, label, desc }) => (
-              <div key={label} className="panel p-5 flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-shelby-accent/10 border border-shelby-accent/25 flex items-center justify-center shrink-0">
-                  <Icon size={18} className="text-shelby-accent" />
-                </div>
-                <div className="min-w-0">
-                  <p className="font-semibold text-shelby-text text-sm">{label}</p>
-                  <p className="text-xs text-shelby-muted leading-relaxed mt-1">{desc}</p>
-                </div>
+      <section className="mb-10">
+        <h2 className="font-display text-2xl font-semibold text-shelby-text mb-5">Use cases</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {USE_CASES.map(({ icon: Icon, label, desc }) => (
+            <div key={label} className="panel p-5">
+              <div className="w-10 h-10 rounded-xl bg-shelby-accent/10 border border-shelby-accent/25 flex items-center justify-center mb-4">
+                <Icon size={18} className="text-shelby-accent" />
               </div>
-            ))}
-          </div>
+              <p className="font-display font-semibold text-shelby-text text-base">{label}</p>
+              <p className="text-sm text-shelby-muted leading-relaxed mt-2">{desc}</p>
+            </div>
+          ))}
         </div>
+      </section>
 
-        <aside className="panel p-5 lg:sticky lg:top-24">
-          <div className="flex items-center gap-2 mb-4">
+      <section className="panel p-5 sm:p-6">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+          <div className="flex items-center gap-2">
             <Cpu size={16} className="text-shelby-accent" />
-            <span className="font-display font-bold text-shelby-text text-sm">Tech stack</span>
+            <h2 className="font-display font-semibold text-shelby-text text-xl">Tech stack</h2>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 lg:justify-end">
             {["React + Vite", "FastAPI", "MySQL", "Shelby Storage", "Aptos Move", "SHA-256"].map((item) => (
               <span
                 key={item}
@@ -121,7 +119,7 @@ export default function AboutPage() {
               </span>
             ))}
           </div>
-        </aside>
+        </div>
       </section>
     </div>
   );
