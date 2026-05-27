@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const api = axios.create({ baseURL: "/api/v1", timeout: 120_000 });
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api/v1";
+
+const api = axios.create({ baseURL: API_BASE_URL, timeout: 120_000 });
 
 /**
  * Compute SHA-256 hash of a file using the browser Web Crypto API.
