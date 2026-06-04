@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { Shield, WalletCards, CheckCircle2, Database, Hash, ReceiptText } from "lucide-react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
@@ -21,12 +21,22 @@ const SUMMARY = [
   { icon: ReceiptText, label: "Proof Record", desc: "Saved for verification" },
 ];
 
+const STEP_HELP = {
+  1: "Creating the file fingerprint locally.",
+  2: "Approve the transaction in your wallet.",
+  3: "Storing the file on Shelby.",
+  4: "Confirming the Aptos anchor.",
+  5: "Proof metadata saved for verification.",
+};
+
 export default function ProvePage() {
   const [file, setFile] = useState(null);
   const [proof, setProof] = useState(null);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(0);
-  const [currentFile, setCurrentFile] = useState(null);
+  const [fileHash, setFileHash] = useState("");
+  const pendingProofRef = useRef(null);
+  const capturedTxHashRef = useRef(null);
 
   const { account, signAndSubmitTransaction, connected } = useWallet();
 
@@ -35,36 +45,52 @@ export default function ProvePage() {
     onSuccess: async (uploadedBlobs) => {
       try {
         setStep(3);
+        const pendingProof = pendingProofRef.current;
+        if (!pendingProof) throw new Error("Missing proof details. Please try again.");
+
         await delay(400);
 
         const blobResult = uploadedBlobs?.[0];
-        const shelbyBlobId = blobResult?.blobId ?? blobResult?.name ?? `shelby-${Date.now()}`;
+        const shelbyBlobId = blobResult?.blobId ?? blobResult?.name ?? pendingProof.file.name;
+        if (!shelbyBlobId) throw new Error("Shelby upload did not return a blob ID.");
+
         const shelbyBlobUrl = blobResult?.url ?? null;
         const aptosTxHash =
-          blobResult?.aptosTransactionHash ?? blobResult?.transactionHash ?? null;
+          blobResult?.aptosTransactionHash ??
+          blobResult?.transactionHash ??
+          capturedTxHashRef.current;
 
-        const fileHash = await computeSHA256(currentFile);
+        if (aptosTxHash) setStep(4);
 
         const result = await submitProof({
-          fileHash,
-          fileName: currentFile.name,
-          fileSize: currentFile.size,
-          fileType: currentFile.type,
+          fileHash: pendingProof.fileHash,
+          fileName: pendingProof.file.name,
+          fileSize: pendingProof.file.size,
+          fileType: pendingProof.file.type,
+          ownerAddress: pendingProof.ownerAddress,
           shelbyBlobId,
           shelbyBlobUrl,
           aptosTxHash,
         });
 
-        setStep(4);
+        setStep(5);
         setProof(result.proof);
 
-        if (result.success) toast.success("File stored on Shelby and anchored on Aptos.");
+        if (result.success && aptosTxHash) toast.success("File stored on Shelby and anchored on Aptos.");
+        else if (result.success) toast.success("File stored on Shelby. Aptos transaction hash was not returned.");
         else toast("This file already has a proof record.");
       } catch (err) {
-        toast.error(err?.response?.data?.detail || "Failed to save proof.");
+        toast.error(
+          err?.response?.data?.detail ||
+            err?.response?.data?.error ||
+            err?.message ||
+            "Failed to save proof.",
+        );
         setStep(0);
       } finally {
         setLoading(false);
+        pendingProofRef.current = null;
+        capturedTxHashRef.current = null;
       }
     },
 
@@ -79,6 +105,8 @@ export default function ProvePage() {
       }
       setStep(0);
       setLoading(false);
+      pendingProofRef.current = null;
+      capturedTxHashRef.current = null;
     },
   });
 
@@ -91,12 +119,14 @@ export default function ProvePage() {
 
     setLoading(true);
     setProof(null);
-    setCurrentFile(file);
+    setFileHash("");
+    capturedTxHashRef.current = null;
     setStep(1);
 
     try {
       await delay(300);
-      setStep(2);
+      const computedHash = await computeSHA256(file);
+      setFileHash(computedHash);
 
       const arrayBuffer = await file.arrayBuffer();
       const blobData = new Uint8Array(arrayBuffer);
@@ -107,19 +137,29 @@ export default function ProvePage() {
           : account.address?.toString();
 
       const accountAddress = AccountAddress.fromString(addressStr);
+      pendingProofRef.current = { file, fileHash: computedHash, ownerAddress: addressStr };
 
+      const trackedSignAndSubmitTransaction = async (...args) => {
+        const response = await signAndSubmitTransaction(...args);
+        capturedTxHashRef.current = response?.hash ?? response?.transactionHash ?? null;
+        return response;
+      };
+
+      setStep(2);
       uploadBlobs.mutate({
         signer: {
           account: accountAddress,
-          signAndSubmitTransaction,
+          signAndSubmitTransaction: trackedSignAndSubmitTransaction,
         },
         blobs: [{ blobName: file.name, blobData }],
         expirationMicros: Date.now() * 1000 + 365 * 24 * 60 * 60 * 1000 * 1000,
       });
     } catch (err) {
-      toast.error("Failed to prepare upload.");
+      toast.error(err?.message || "Failed to prepare upload.");
       setStep(0);
       setLoading(false);
+      pendingProofRef.current = null;
+      capturedTxHashRef.current = null;
     }
   }, [file, connected, account, signAndSubmitTransaction, uploadBlobs]);
 
@@ -127,7 +167,9 @@ export default function ProvePage() {
     setFile(null);
     setProof(null);
     setStep(0);
-    setCurrentFile(null);
+    setFileHash("");
+    pendingProofRef.current = null;
+    capturedTxHashRef.current = null;
   }
 
   const addressStr = account?.address
@@ -175,10 +217,16 @@ export default function ProvePage() {
                   {loading && (
                     <div className="space-y-3">
                       <StepIndicator currentStep={step} />
-                      {step === 2 && (
-                        <p className="text-xs text-center text-shelby-muted font-mono animate-pulse">
-                          Approve the transaction in your wallet.
-                        </p>
+                      <p className="text-xs text-center text-shelby-muted font-mono animate-pulse">
+                        {STEP_HELP[step] || "Preparing proof..."}
+                      </p>
+                      {fileHash && (
+                        <div className="rounded-xl border border-shelby-border bg-shelby-bg/55 p-3">
+                          <p className="text-[0.68rem] font-mono uppercase tracking-widest text-shelby-muted">
+                            SHA-256
+                          </p>
+                          <p className="mt-1 text-xs font-mono text-shelby-accent break-all">{fileHash}</p>
+                        </div>
                       )}
                     </div>
                   )}
@@ -195,7 +243,7 @@ export default function ProvePage() {
                       }`}
                   >
                     <Shield size={16} />
-                    {loading || uploadBlobs.isPending ? "Waiting for wallet approval..." : "Generate Proof"}
+                    {loading || uploadBlobs.isPending ? "Creating proof..." : "Generate Proof"}
                   </button>
                 </div>
               )}
@@ -249,11 +297,17 @@ export default function ProvePage() {
 
         {proof && (
           <aside className="panel p-5 lg:sticky lg:top-24">
-            <CheckCircle2 size={22} className="text-shelby-success" />
-            <p className="font-display text-xl font-bold text-shelby-text mt-3">Proof created</p>
+            <CheckCircle2
+              size={22}
+              className={proof.aptos_tx_hash ? "text-shelby-success" : "text-shelby-warning"}
+            />
+            <p className="font-display text-xl font-bold text-shelby-text mt-3">
+              {proof.aptos_tx_hash ? "Proof anchored" : "Proof stored"}
+            </p>
             <p className="text-sm text-shelby-muted leading-relaxed mt-2">
-              Save the file hash or share the proof details so the record can be
-              checked from the verify screen.
+              {proof.aptos_tx_hash
+                ? "Save the file hash or share the proof details so the anchored record can be checked later."
+                : "Save the file hash. The record can be verified locally, but no Aptos transaction hash was returned."}
             </p>
           </aside>
         )}

@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     # Shelby decentralized storage
     SHELBY_API_URL: Optional[str] = None
     SHELBY_API_KEY: Optional[str] = None
+    SHELBY_INDEXER_URL: str = "https://api.testnet.aptoslabs.com/nocode/v1/public/alias/shelby/testnet/v1/graphql"
+    SHELBY_RPC_URL: str = "https://api.testnet.shelby.xyz/shelby"
 
     # Frontend origins allowed to call the API.
     # Example: https://your-app.vercel.app,http://localhost:5173

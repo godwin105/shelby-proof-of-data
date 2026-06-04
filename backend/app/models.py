@@ -11,6 +11,7 @@ class Proof(Base):
     file_name = Column(String(255), nullable=False)
     file_size = Column(BigInteger, nullable=False)
     file_type = Column(String(100), nullable=True)
+    owner_address = Column(String(66), nullable=True)
     shelby_blob_id = Column(String(255), nullable=False)
     shelby_blob_url = Column(String(512), nullable=True)
     aptos_tx_hash = Column(String(100), nullable=True)

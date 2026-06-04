@@ -1,7 +1,7 @@
 import { ShelbyClient } from "@shelby-protocol/sdk/browser";
 import { Network } from "@aptos-labs/ts-sdk";
 
-const API_KEY = import.meta.env.VITE_SHELBY_API_KEY;
+const API_KEY = import.meta.env.VITE_SHELBY_API_KEY || import.meta.env.VITE_APTOS_API_KEY;
 
 export const shelbyClient = new ShelbyClient({
   network: Network.TESTNET,

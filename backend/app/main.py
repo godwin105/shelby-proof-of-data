@@ -1,10 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .config import get_cors_origins
-from .database import Base, engine
+from .database import Base, engine, ensure_runtime_schema
 from .routes import proof, verify
 
 Base.metadata.create_all(bind=engine)
+ensure_runtime_schema()
 
 app = FastAPI(
     title="Shelby Proof-of-Data API",

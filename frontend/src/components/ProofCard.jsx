@@ -1,6 +1,7 @@
 import {
   CheckCircle2,
   Clock,
+  Copy,
   ExternalLink,
   FileText,
   HardDrive,
@@ -43,8 +44,9 @@ function formatBytes(bytes) {
 
 export default function ProofCard({ proof }) {
   const ts = new Date(proof.timestamp);
+  const isAnchored = Boolean(proof.aptos_tx_hash);
   const aptosExplorer = proof.aptos_tx_hash
-    ? `https://explorer.aptoslabs.com/txn/${proof.aptos_tx_hash}?network=devnet`
+    ? `https://explorer.aptoslabs.com/txn/${proof.aptos_tx_hash}?network=testnet`
     : null;
 
   return (
@@ -58,14 +60,28 @@ export default function ProofCard({ proof }) {
             {proof.file_name}
           </h3>
         </div>
-        <span className="w-fit inline-flex items-center gap-1.5 text-xs font-mono px-3 py-1.5 rounded-full bg-shelby-success/10 text-shelby-success border border-shelby-success/25 whitespace-nowrap">
-          <CheckCircle2 size={13} /> PROVEN
+        <span
+          className={`w-fit inline-flex items-center gap-1.5 text-xs font-mono px-3 py-1.5 rounded-full border whitespace-nowrap ${
+            isAnchored
+              ? "bg-shelby-success/10 text-shelby-success border-shelby-success/25"
+              : "bg-shelby-warning/10 text-shelby-warning border-shelby-warning/30"
+          }`}
+        >
+          {isAnchored ? <CheckCircle2 size={13} /> : <Clock size={13} />}
+          {isAnchored ? "ANCHORED" : "STORED"}
         </span>
       </div>
+
+      {!isAnchored && (
+        <div className="rounded-xl border border-shelby-warning/25 bg-shelby-warning/10 p-3 text-xs text-shelby-warning leading-relaxed">
+          The file was stored and saved for verification, but no Aptos transaction hash was returned.
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Field icon={Hash} label="SHA-256 Hash" value={proof.file_hash} mono />
         <Field icon={Clock} label="Timestamp" value={ts.toUTCString()} />
+        {proof.owner_address && <Field icon={CheckCircle2} label="Owner Wallet" value={proof.owner_address} mono />}
         <Field icon={FileText} label="File Type" value={proof.file_type || "Unknown"} />
         <Field icon={HardDrive} label="File Size" value={formatBytes(proof.file_size)} />
         <Field
@@ -83,6 +99,28 @@ export default function ProofCard({ proof }) {
             mono
             link={aptosExplorer}
           />
+        )}
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-2">
+        <button
+          type="button"
+          onClick={() => navigator.clipboard?.writeText(proof.file_hash)}
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-shelby-border bg-shelby-surface px-4 py-2.5 text-sm font-medium text-shelby-text hover:border-shelby-accent/40 transition-colors"
+        >
+          <Copy size={14} />
+          Copy hash
+        </button>
+        {aptosExplorer && (
+          <a
+            href={aptosExplorer}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-shelby-border bg-shelby-surface px-4 py-2.5 text-sm font-medium text-shelby-text hover:border-shelby-accent/40 transition-colors"
+          >
+            <ExternalLink size={14} />
+            Open Aptos explorer
+          </a>
         )}
       </div>
     </div>

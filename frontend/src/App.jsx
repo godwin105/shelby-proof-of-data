@@ -14,6 +14,7 @@ import VerifyPage from "./pages/VerifyPage";
 import AboutPage from "./pages/AboutPage";
 
 const queryClient = new QueryClient();
+const APTOS_API_KEY = import.meta.env.VITE_SHELBY_API_KEY || import.meta.env.VITE_APTOS_API_KEY;
 
 export default function App() {
   return (
@@ -22,7 +23,7 @@ export default function App() {
         autoConnect={true}
         dappConfig={{
           network: Network.TESTNET,
-          aptosApiKeys: { testnet: import.meta.env.VITE_SHELBY_API_KEY },
+          aptosApiKeys: { testnet: APTOS_API_KEY },
         }}
       >
         <WalletModalProvider>

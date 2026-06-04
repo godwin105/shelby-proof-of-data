@@ -2,15 +2,16 @@ import { Check } from "lucide-react";
 
 const STEPS = [
   { id: 1, label: "Hash" },
-  { id: 2, label: "Store" },
-  { id: 3, label: "Anchor" },
-  { id: 4, label: "Ready" },
+  { id: 2, label: "Wallet" },
+  { id: 3, label: "Store" },
+  { id: 4, label: "Anchor" },
+  { id: 5, label: "Ready" },
 ];
 
 export default function StepIndicator({ currentStep }) {
   return (
     <div className="w-full overflow-x-auto pb-1">
-      <div className="min-w-[28rem] sm:min-w-0 flex items-center">
+      <div className="min-w-[34rem] sm:min-w-0 flex items-center">
         {STEPS.map((step, i) => {
           const done = currentStep > step.id;
           const active = currentStep === step.id;
