@@ -1,5 +1,4 @@
-from pydantic import BaseModel
-from pydantic import field_validator
+from pydantic import BaseModel, field_validator  # type: ignore[import]
 from datetime import datetime
 from typing import Optional
 import re

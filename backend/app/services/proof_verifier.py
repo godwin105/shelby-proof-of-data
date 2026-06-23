@@ -91,6 +91,7 @@ class ProofVerifier:
         headers = {"x-aptos-client": "shelby-proof-of-data"}
         if settings.SHELBY_API_KEY:
             headers["Authorization"] = f"Bearer {settings.SHELBY_API_KEY}"
+            headers["x-api-key"] = settings.SHELBY_API_KEY
 
         query = """
         query VerifyShelbyBlob($blobName: String!, $txHash: String) {

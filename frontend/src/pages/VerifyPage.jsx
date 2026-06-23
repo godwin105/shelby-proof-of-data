@@ -44,7 +44,7 @@ export default function VerifyPage() {
   }
 
   return (
-    <div className="page-shell pt-6 sm:pt-8 lg:pt-10 pb-10 sm:pb-14 lg:pb-16">
+    <div className="page-shell pt-3 sm:pt-4 lg:pt-5 pb-10 sm:pb-14 lg:pb-16">
       <div className="mx-auto max-w-3xl text-center mb-8">
         <p className="section-kicker mb-3 justify-center">Verification</p>
         <h1 className="font-display text-3xl sm:text-5xl font-semibold text-shelby-text leading-tight">
@@ -72,7 +72,7 @@ export default function VerifyPage() {
                   className={`min-h-11 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${
                     active
                       ? "bg-shelby-accent text-shelby-onAccent font-semibold"
-                      : "text-shelby-muted hover:text-shelby-text hover:bg-white/5"
+                      : "text-shelby-muted hover:text-shelby-text hover:bg-shelby-surface2"
                   }`}
                 >
                   {i === 0 ? <Hash size={15} /> : <Upload size={15} />}

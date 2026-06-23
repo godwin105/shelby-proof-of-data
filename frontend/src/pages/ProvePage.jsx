@@ -9,7 +9,7 @@ import DropZone from "../components/DropZone";
 import ProofCard from "../components/ProofCard";
 import StepIndicator from "../components/StepIndicator";
 import WalletGate from "../components/WalletGate";
-import { computeSHA256, submitProof } from "../services/api";
+import { computeSHA256, submitProof, fetchBlobTxHash } from "../services/api";
 import { shelbyClient } from "../lib/shelby";
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -24,7 +24,7 @@ const SUMMARY = [
 const STEP_HELP = {
   1: "Creating the file fingerprint locally.",
   2: "Approve the transaction in your wallet.",
-  3: "Storing the file on Shelby.",
+  3: "Uploading file to Shelby — large files may take several minutes.",
   4: "Confirming the Aptos anchor.",
   5: "Proof metadata saved for verification.",
 };
@@ -44,7 +44,9 @@ export default function ProvePage() {
     client: shelbyClient,
     onSuccess: async (uploadedBlobs) => {
       try {
-        setStep(3);
+        // Step 3 may already be set (tx was signed during upload).
+        // For blobs that were already registered, advance to at least 3 now.
+        setStep((prev) => Math.max(prev, 3));
         const pendingProof = pendingProofRef.current;
         if (!pendingProof) throw new Error("Missing proof details. Please try again.");
 
@@ -55,10 +57,19 @@ export default function ProvePage() {
         if (!shelbyBlobId) throw new Error("Shelby upload did not return a blob ID.");
 
         const shelbyBlobUrl = blobResult?.url ?? null;
-        const aptosTxHash =
+        let aptosTxHash =
           blobResult?.aptosTransactionHash ??
           blobResult?.transactionHash ??
           capturedTxHashRef.current;
+
+        // Blob was already registered on-chain (SDK skipped signAndSubmitTransaction).
+        // Fall back to indexer to retrieve the original tx hash.
+        if (!aptosTxHash) {
+          aptosTxHash = await fetchBlobTxHash(
+            pendingProof.ownerAddress,
+            pendingProof.file.name,
+          );
+        }
 
         if (aptosTxHash) setStep(4);
 
@@ -142,6 +153,9 @@ export default function ProvePage() {
       const trackedSignAndSubmitTransaction = async (...args) => {
         const response = await signAndSubmitTransaction(...args);
         capturedTxHashRef.current = response?.hash ?? response?.transactionHash ?? null;
+        // Wallet confirmed — advance immediately so the UI shows "Uploading"
+        // instead of staying frozen on "Approve the transaction in your wallet."
+        setStep(3);
         return response;
       };
 
@@ -179,7 +193,7 @@ export default function ProvePage() {
     : "";
 
   return (
-    <div className="page-shell pt-6 sm:pt-8 lg:pt-10 pb-10 sm:pb-14 lg:pb-16">
+    <div className="page-shell pt-3 sm:pt-4 lg:pt-5 pb-10 sm:pb-14 lg:pb-16">
       <div className="mb-8 sm:mb-10 max-w-3xl">
         <p className="section-kicker mb-3">Proof workspace</p>
         <h1 className="font-display text-3xl sm:text-5xl font-semibold text-shelby-text leading-tight">

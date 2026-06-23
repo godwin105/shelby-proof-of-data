@@ -30,17 +30,24 @@ async def create_proof(payload: ProofRequest, db: Session = Depends(get_db)):
                 proof=existing,
             )
 
-        # Save proof — aptos_tx_hash comes from the Shelby SDK upload response
-        await proof_verifier.verify_aptos_transaction(
-            payload.aptos_tx_hash,
-            payload.owner_address,
-        )
-        await proof_verifier.verify_shelby_blob(
-            owner_address=payload.owner_address,
-            blob_name=payload.shelby_blob_id,
-            file_size=payload.file_size,
-            aptos_tx_hash=payload.aptos_tx_hash,
-        )
+        # Verify on-chain anchors only when the frontend returned hashes
+        if payload.aptos_tx_hash:
+            await proof_verifier.verify_aptos_transaction(
+                payload.aptos_tx_hash,
+                payload.owner_address,
+            )
+
+        shelby_warning = None
+        try:
+            await proof_verifier.verify_shelby_blob(
+                owner_address=payload.owner_address,
+                blob_name=payload.shelby_blob_id,
+                file_size=payload.file_size,
+                aptos_tx_hash=payload.aptos_tx_hash,
+            )
+        except ValueError as e:
+            # Indexer auth/connectivity issue — save proof but surface warning
+            shelby_warning = str(e)
 
         proof = Proof(
             file_hash=payload.file_hash,
@@ -56,9 +63,13 @@ async def create_proof(payload: ProofRequest, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(proof)
 
+        message = "Proof recorded successfully."
+        if shelby_warning:
+            message += f" (Shelby verification skipped: {shelby_warning})"
+
         return UploadResponse(
             success=True,
-            message="Proof recorded successfully.",
+            message=message,
             proof=proof,
         )
 

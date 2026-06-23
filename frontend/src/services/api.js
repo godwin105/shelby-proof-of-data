@@ -44,6 +44,47 @@ export async function submitProof({
 }
 
 /**
+ * Query the Shelby indexer for the most recent transaction hash linked to a blob.
+ * Used as a fallback when the SDK skips signAndSubmitTransaction (blob already registered).
+ */
+export async function fetchBlobTxHash(ownerAddress, blobName) {
+  const indexerUrl =
+    import.meta.env.VITE_SHELBY_INDEXER_URL ||
+    "https://api.testnet.aptoslabs.com/nocode/v1/public/alias/shelby/testnet/v1/graphql";
+  const apiKey = import.meta.env.VITE_SHELBY_API_KEY;
+
+  const normalizedOwner = ownerAddress.replace(/^0x/, "").toLowerCase().padStart(64, "0");
+  const fullBlobName = `@${normalizedOwner}/${blobName}`;
+
+  const headers = { "Content-Type": "application/json" };
+  if (apiKey) {
+    headers["Authorization"] = `Bearer ${apiKey}`;
+    headers["x-api-key"] = apiKey;
+  }
+
+  try {
+    const res = await fetch(indexerUrl, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        query: `query FetchBlobTx($name: String!) {
+          blob_activities(
+            where: { blob_name: { _eq: $name } }
+            order_by: { transaction_version: desc }
+            limit: 1
+          ) { transaction_hash }
+        }`,
+        variables: { name: fullBlobName },
+      }),
+    });
+    const json = await res.json();
+    return json?.data?.blob_activities?.[0]?.transaction_hash ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Verify a proof by its SHA-256 hash string.
  */
 export async function verifyByHash(hash) {

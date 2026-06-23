@@ -48,6 +48,9 @@ export default function ProofCard({ proof }) {
   const aptosExplorer = proof.aptos_tx_hash
     ? `https://explorer.aptoslabs.com/txn/${proof.aptos_tx_hash}?network=testnet`
     : null;
+  const shelbyDashboard = proof.owner_address
+    ? `https://explorer.shelby.xyz/testnet/account/${proof.owner_address}`
+    : null;
 
   return (
     <div className="panel p-4 sm:p-6 accent-glow animate-slide-up space-y-5">
@@ -120,6 +123,17 @@ export default function ProofCard({ proof }) {
           >
             <ExternalLink size={14} />
             Open Aptos explorer
+          </a>
+        )}
+        {shelbyDashboard && (
+          <a
+            href={shelbyDashboard}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-shelby-accent/40 bg-shelby-accent/10 px-4 py-2.5 text-sm font-medium text-shelby-accent hover:bg-shelby-accent/20 transition-colors"
+          >
+            <ExternalLink size={14} />
+            View on Shelby
           </a>
         )}
       </div>

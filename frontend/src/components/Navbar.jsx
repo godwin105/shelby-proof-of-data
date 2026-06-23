@@ -29,6 +29,15 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-shelby-border bg-shelby-bg/90 backdrop-blur-xl">
       <div className="page-shell h-16 flex items-center gap-3">
+        <button
+          type="button"
+          aria-label="Toggle navigation"
+          className="flex md:hidden h-10 w-10 rounded-xl border border-shelby-border text-shelby-muted hover:text-shelby-text hover:bg-shelby-surface2 transition-colors items-center justify-center shrink-0"
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          {menuOpen ? <X size={18} /> : <Menu size={18} />}
+        </button>
+
         <Link
           to="/"
           className="flex items-center gap-2.5 group shrink-0"
@@ -49,11 +58,12 @@ export default function Navbar() {
               <Link
                 key={to}
                 to={to}
-                className={`py-2 text-sm font-semibold transition-all duration-150 ${
-                  active
-                    ? "text-shelby-text"
-                    : "text-shelby-muted hover:text-shelby-text"
-                }`}
+                className={`relative py-2 text-sm font-semibold transition-all duration-150
+                  after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:rounded-full after:transition-all after:duration-150
+                  ${active
+                    ? "text-shelby-accent after:bg-shelby-accent"
+                    : "text-shelby-muted hover:text-shelby-text after:bg-transparent"
+                  }`}
               >
                 {label}
               </Link>
@@ -84,14 +94,6 @@ export default function Navbar() {
             <ThemeIcon size={17} />
           </button>
           <WalletButton compact />
-          <button
-            type="button"
-            aria-label="Toggle navigation"
-            className="h-10 w-10 rounded-xl border border-shelby-border text-shelby-muted hover:text-shelby-text hover:bg-white/5 transition-colors grid place-items-center shrink-0"
-            onClick={() => setMenuOpen((open) => !open)}
-          >
-            {menuOpen ? <X size={18} /> : <Menu size={18} />}
-          </button>
         </div>
       </div>
 

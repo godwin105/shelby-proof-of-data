@@ -43,7 +43,7 @@ const USE_CASES = [
 export default function HomePage() {
   return (
     <div className="w-full">
-      <section className="page-shell pt-6 sm:pt-8 lg:pt-10 pb-12 lg:pb-16">
+      <section className="page-shell pt-3 sm:pt-4 lg:pt-5 pb-12 lg:pb-16">
         <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-8 lg:gap-10 items-center">
           <div className="min-w-0">
             <p className="section-kicker mb-5">Shelby Proof-of-Data</p>
