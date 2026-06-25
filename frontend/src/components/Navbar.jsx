@@ -43,7 +43,7 @@ export default function Navbar() {
           className="flex items-center gap-2.5 group shrink-0"
           onClick={() => setMenuOpen(false)}
         >
-          <img src="/favicon.svg" alt="Shelby PoD" className="w-9 h-9" />
+          <img src="/favicon.svg" alt="Shelby PoD" className="w-9 h-9 object-contain" />
           <span className="font-display font-bold text-2xl leading-none text-shelby-text whitespace-nowrap">
             Shelby <span className="text-shelby-accent">PoD</span>
           </span>
