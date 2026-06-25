@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Diamond, Menu, Moon, Sun, X } from "lucide-react";
+import { Menu, Moon, Sun, X } from "lucide-react";
 import WalletButton from "./WalletButton";
 
 const links = [
@@ -43,9 +43,7 @@ export default function Navbar() {
           className="flex items-center gap-2.5 group shrink-0"
           onClick={() => setMenuOpen(false)}
         >
-          <div className="w-9 h-9 flex items-center justify-center">
-            <Diamond size={19} className="text-shelby-accent" />
-          </div>
+          <img src="/favicon.svg" alt="Shelby PoD" className="w-9 h-9" />
           <span className="font-display font-bold text-2xl leading-none text-shelby-text whitespace-nowrap">
             Shelby <span className="text-shelby-accent">PoD</span>
           </span>
