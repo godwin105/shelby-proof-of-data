@@ -1,18 +1,40 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { ExternalLink, X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
+import toast from "react-hot-toast";
 import { useWalletModal } from "../context/WalletModalContext";
 
 const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 
+const isSocial = (name) =>
+  ["google", "apple", "continue", "aptosconnect"].some((k) =>
+    name.toLowerCase().includes(k)
+  );
+
+const isPetra = (name) => name.toLowerCase().includes("petra");
+
+function sortWallets(wallets) {
+  return [...wallets].sort((a, b) => {
+    if (isPetra(a.name) && !isPetra(b.name)) return -1;
+    if (!isPetra(a.name) && isPetra(b.name)) return 1;
+    if (isSocial(a.name) && !isSocial(b.name)) return 1;
+    if (!isSocial(a.name) && isSocial(b.name)) return -1;
+    return a.name.localeCompare(b.name);
+  });
+}
+
 function WalletIcon({ wallet }) {
   const icon = wallet.icon;
   const iconSrc = typeof icon === "string" ? icon : icon?.light ?? icon?.dark ?? null;
-
   if (iconSrc) {
-    return <img src={iconSrc} alt={wallet.name} className="w-9 h-9 rounded-xl object-contain shrink-0" />;
+    return (
+      <img
+        src={iconSrc}
+        alt={wallet.name}
+        className="w-9 h-9 rounded-xl object-contain shrink-0"
+      />
+    );
   }
-
   return (
     <div className="w-9 h-9 rounded-xl bg-shelby-surface border border-shelby-border flex items-center justify-center text-shelby-muted text-xs font-mono font-bold shrink-0">
       {wallet.name.slice(0, 2).toUpperCase()}
@@ -22,18 +44,23 @@ function WalletIcon({ wallet }) {
 
 export default function WalletModal() {
   const { isOpen, closeModal } = useWalletModal();
-  const { connect, wallets } = useWallet();
+  const { connect, wallets, connected } = useWallet();
+  const [connecting, setConnecting] = useState(null);
+
+  // Close automatically when connection succeeds (handles redirect-based auth)
+  useEffect(() => {
+    if (connected && isOpen) {
+      setConnecting(null);
+      closeModal();
+    }
+  }, [connected, isOpen, closeModal]);
 
   useEffect(() => {
-    const onKey = (event) => {
-      if (event.key === "Escape") closeModal();
-    };
-
+    const onKey = (e) => { if (e.key === "Escape") closeModal(); };
     if (isOpen) {
       document.addEventListener("keydown", onKey);
       document.body.style.overflow = "hidden";
     }
-
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
@@ -42,42 +69,64 @@ export default function WalletModal() {
 
   if (!isOpen) return null;
 
-  const isSocial = (name) =>
-    ["google", "apple", "continue"].some((key) => name.toLowerCase().includes(key));
+  const sorted = sortWallets(wallets);
+  const extensionWallets = sorted.filter((w) => !isSocial(w.name));
+  const socialWallets = sorted.filter((w) => isSocial(w.name));
 
-  const extensionWallets = wallets.filter((wallet) => !isSocial(wallet.name));
-  const socialWallets = wallets.filter((wallet) => isSocial(wallet.name));
-
-  function handleConnect(walletName) {
-    connect(walletName);
-    closeModal();
+  async function handleConnect(walletName) {
+    setConnecting(walletName);
+    try {
+      await connect(walletName);
+      closeModal();
+    } catch (err) {
+      const msg = err?.message || "";
+      if (!msg.toLowerCase().includes("cancel") && !msg.toLowerCase().includes("reject")) {
+        toast.error(msg || "Failed to connect wallet.");
+      }
+    } finally {
+      setConnecting(null);
+    }
   }
 
-  const walletButton = (wallet, soft = false) => (
-    <button
-      key={wallet.name}
-      type="button"
-      onClick={() => handleConnect(wallet.name)}
-      className={`flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all text-left border ${
-        soft
-          ? "bg-shelby-bg/60 border-shelby-border hover:border-shelby-accent/45"
-          : "bg-shelby-surface border-shelby-border hover:border-shelby-accent/45 hover:bg-shelby-accent/5"
-      }`}
-    >
-      <WalletIcon wallet={wallet} />
-      <span className="text-base font-semibold text-shelby-text truncate">{wallet.name}</span>
-    </button>
-  );
+  const WalletButton = ({ wallet }) => {
+    const isConnecting = connecting === wallet.name;
+    const isDisabled = connecting !== null;
+    return (
+      <button
+        key={wallet.name}
+        type="button"
+        disabled={isDisabled}
+        onClick={() => handleConnect(wallet.name)}
+        className={`flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all text-left border
+          ${isConnecting
+            ? "border-shelby-accent bg-shelby-accent/10"
+            : "border-shelby-border bg-shelby-surface hover:border-shelby-accent/45 hover:bg-shelby-accent/5"
+          }
+          ${isDisabled && !isConnecting ? "opacity-40 cursor-not-allowed" : ""}
+        `}
+      >
+        <WalletIcon wallet={wallet} />
+        <span className="text-base font-semibold text-shelby-text truncate flex-1">
+          {isConnecting ? "Connecting..." : wallet.name}
+        </span>
+        {isConnecting && (
+          <Loader2 size={16} className="text-shelby-accent animate-spin shrink-0" />
+        )}
+      </button>
+    );
+  };
+
+  const hasAnyWallet = wallets.length > 0;
 
   return (
     <div
       className="fixed inset-0 z-50 overflow-y-auto bg-black/80 px-4 py-8"
-      onClick={closeModal}
+      onClick={() => { if (!connecting) closeModal(); }}
     >
       <div className="flex min-h-full items-center justify-center">
         <div
           className="w-full max-w-lg rounded-2xl overflow-hidden animate-slide-up bg-shelby-bg border border-shelby-border shadow-2xl"
-          onClick={(event) => event.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
         >
           <div className="px-5 sm:px-8 pt-8 pb-5">
             <div className="flex items-start justify-between gap-4 mb-4">
@@ -86,80 +135,83 @@ export default function WalletModal() {
                   Connect a wallet
                 </h2>
                 <p className="text-sm text-shelby-muted leading-relaxed mt-2">
-                  Shelby PoD uses your Aptos wallet for signing proof transactions.
+                  {isMobile
+                    ? "Use social sign-in or an Aptos-compatible mobile wallet."
+                    : "Select an Aptos wallet to sign proof transactions."}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={closeModal}
-                aria-label="Close wallet modal"
-                className="h-9 w-9 rounded-xl text-shelby-muted hover:text-shelby-text hover:bg-white/5 transition-colors grid place-items-center shrink-0"
+                disabled={!!connecting}
+                aria-label="Close"
+                className="h-9 w-9 rounded-xl text-shelby-muted hover:text-shelby-text hover:bg-white/5 transition-colors grid place-items-center shrink-0 disabled:opacity-40"
               >
                 <X size={18} />
               </button>
             </div>
           </div>
 
-          {extensionWallets.length > 0 && (
-            <div className="px-5 sm:px-8 pb-6">
-              <p className="text-xs font-mono text-shelby-muted uppercase tracking-widest mb-3">
-                Wallet extensions
-              </p>
-              <div className="flex flex-col gap-2.5">
-                {extensionWallets.map((wallet) => walletButton(wallet))}
-              </div>
-            </div>
-          )}
-
+          {/* Social / AptosConnect — shown first on mobile */}
           {socialWallets.length > 0 && (
-            <div className="px-5 sm:px-8 pb-6">
+            <div className="px-5 sm:px-8 pb-5">
               <p className="text-xs font-mono text-shelby-muted uppercase tracking-widest mb-3">
                 Social sign-in
               </p>
               <div className="flex flex-col gap-2.5">
-                {socialWallets.map((wallet) => walletButton(wallet, true))}
+                {socialWallets.map((w) => <WalletButton key={w.name} wallet={w} />)}
               </div>
             </div>
           )}
 
-          {isMobile && (
-            <div className="px-5 sm:px-8 pb-6">
+          {/* Extension / standard wallets */}
+          {extensionWallets.length > 0 && (
+            <div className="px-5 sm:px-8 pb-5">
               <p className="text-xs font-mono text-shelby-muted uppercase tracking-widest mb-3">
-                Mobile wallet
+                {isMobile ? "Detected wallets" : "Wallet extensions"}
               </p>
-              <a
-                href={`https://petra.app/explore?link=${encodeURIComponent(window.location.origin)}`}
-                className="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all text-left border bg-shelby-surface border-shelby-border hover:border-shelby-accent/45 hover:bg-shelby-accent/5"
-              >
-                <img src="https://petra.app/favicon.ico" alt="Petra" className="w-9 h-9 rounded-xl object-contain shrink-0" onError={(e) => { e.target.style.display='none'; }} />
-                <div className="min-w-0">
-                  <p className="text-base font-semibold text-shelby-text">Petra Mobile</p>
-                  <p className="text-xs text-shelby-muted mt-0.5">Opens in Petra app</p>
-                </div>
-                <ExternalLink size={14} className="text-shelby-muted shrink-0 ml-auto" />
-              </a>
+              <div className="flex flex-col gap-2.5">
+                {extensionWallets.map((w) => <WalletButton key={w.name} wallet={w} />)}
+              </div>
             </div>
           )}
 
-          {!isMobile && wallets.length === 0 && (
+          {/* No wallets found */}
+          {!hasAnyWallet && (
             <div className="px-5 sm:px-8 pb-8 text-center space-y-4">
-              <p className="text-sm text-shelby-muted">No wallets detected in this browser.</p>
-              <a
-                href="https://petra.app"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-shelby-accent text-shelby-onAccent text-sm font-semibold hover:brightness-110 transition-all"
-              >
-                Install Petra Wallet
-              </a>
+              {isMobile ? (
+                <>
+                  <p className="text-sm text-shelby-muted">
+                    No wallets detected. Use the social sign-in options above, or open this site inside the <strong className="text-shelby-text">Petra</strong> or <strong className="text-shelby-text">OKX</strong> mobile wallet browser.
+                  </p>
+                  <a
+                    href="https://petra.app"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-shelby-accent text-shelby-onAccent text-sm font-semibold hover:brightness-110 transition-all"
+                  >
+                    Get Petra Mobile
+                  </a>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm text-shelby-muted">No wallets detected in this browser.</p>
+                  <a
+                    href="https://petra.app"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-shelby-accent text-shelby-onAccent text-sm font-semibold hover:brightness-110 transition-all"
+                  >
+                    Install Petra Wallet
+                  </a>
+                </>
+              )}
             </div>
           )}
 
-          <div className="px-5 sm:px-8 pb-8 pt-2">
+          <div className="px-5 sm:px-8 py-4 border-t border-shelby-border">
             <p className="text-xs font-mono text-shelby-muted">
-              {isMobile
-                ? "Use Petra Mobile or social sign-in to connect on mobile"
-                : "Supports Petra, OKX, Martian, and compatible Aptos wallets"}
+              Petra is listed first. All detected Aptos-compatible wallets appear above.
             </p>
           </div>
         </div>
