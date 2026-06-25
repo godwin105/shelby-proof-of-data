@@ -73,16 +73,6 @@ export default function Navbar() {
         </nav>
 
         <div className="hidden md:flex items-center gap-3 shrink-0">
-          {canInstall && (
-            <button
-              type="button"
-              onClick={isIOS ? () => setShowIOSHint(true) : install}
-              title="Install app"
-              className="h-10 w-10 rounded-xl border border-shelby-accent/40 text-shelby-accent hover:bg-shelby-accent/10 transition-colors grid place-items-center"
-            >
-              <Download size={16} />
-            </button>
-          )}
           <button
             type="button"
             onClick={toggleTheme}

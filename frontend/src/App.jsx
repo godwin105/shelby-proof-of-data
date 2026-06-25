@@ -60,7 +60,7 @@ export default function App() {
               <footer className="border-t border-shelby-border py-6">
                 <div className="page-shell flex flex-col sm:flex-row items-center justify-between gap-3">
                   <p className="text-xs font-mono text-shelby-muted">
-                    Copyright 2025 Shelby Proof-of-Data
+                    Copyright 2026 Shelby Proof-of-Data
                   </p>
                   <p className="text-xs font-mono text-shelby-muted">
                     Built on <span className="text-shelby-accent">Aptos</span> /{" "}
