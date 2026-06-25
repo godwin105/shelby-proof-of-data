@@ -10,6 +10,10 @@ const api = axios.create({ baseURL: API_BASE_URL, timeout: 120_000 });
  */
 export async function computeSHA256(file) {
   const buffer = await file.arrayBuffer();
+  return computeSHA256FromBuffer(buffer);
+}
+
+export async function computeSHA256FromBuffer(buffer) {
   const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
   return Array.from(new Uint8Array(hashBuffer))
     .map((b) => b.toString(16).padStart(2, "0"))

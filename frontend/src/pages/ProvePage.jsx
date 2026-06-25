@@ -9,7 +9,7 @@ import DropZone from "../components/DropZone";
 import ProofCard from "../components/ProofCard";
 import StepIndicator from "../components/StepIndicator";
 import WalletGate from "../components/WalletGate";
-import { computeSHA256, submitProof, fetchBlobTxHash } from "../services/api";
+import { computeSHA256FromBuffer, submitProof, fetchBlobTxHash } from "../services/api";
 import { shelbyClient } from "../lib/shelby";
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -35,8 +35,10 @@ export default function ProvePage() {
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(0);
   const [fileHash, setFileHash] = useState("");
+  const [uploadProgress, setUploadProgress] = useState(0);
   const pendingProofRef = useRef(null);
   const capturedTxHashRef = useRef(null);
+  const progressTimerRef = useRef(null);
 
   const { account, signAndSubmitTransaction, connected } = useWallet();
 
@@ -44,8 +46,8 @@ export default function ProvePage() {
     client: shelbyClient,
     onSuccess: async (uploadedBlobs) => {
       try {
-        // Step 3 may already be set (tx was signed during upload).
-        // For blobs that were already registered, advance to at least 3 now.
+        clearInterval(progressTimerRef.current);
+        setUploadProgress(100);
         setStep((prev) => Math.max(prev, 3));
         const pendingProof = pendingProofRef.current;
         if (!pendingProof) throw new Error("Missing proof details. Please try again.");
@@ -106,6 +108,8 @@ export default function ProvePage() {
     },
 
     onError: (err) => {
+      clearInterval(progressTimerRef.current);
+      setUploadProgress(0);
       const msg = err?.message || "";
       if (msg.includes("rejected") || msg.includes("cancel")) {
         toast.error("Transaction rejected in wallet.");
@@ -131,16 +135,17 @@ export default function ProvePage() {
     setLoading(true);
     setProof(null);
     setFileHash("");
+    setUploadProgress(0);
     capturedTxHashRef.current = null;
     setStep(1);
 
     try {
       await delay(300);
-      const computedHash = await computeSHA256(file);
-      setFileHash(computedHash);
-
+      // Read file once — reuse the same buffer for hashing and blob upload
       const arrayBuffer = await file.arrayBuffer();
+      const computedHash = await computeSHA256FromBuffer(arrayBuffer);
       const blobData = new Uint8Array(arrayBuffer);
+      setFileHash(computedHash);
 
       const addressStr =
         typeof account.address === "string"
@@ -153,9 +158,15 @@ export default function ProvePage() {
       const trackedSignAndSubmitTransaction = async (...args) => {
         const response = await signAndSubmitTransaction(...args);
         capturedTxHashRef.current = response?.hash ?? response?.transactionHash ?? null;
-        // Wallet confirmed — advance immediately so the UI shows "Uploading"
-        // instead of staying frozen on "Approve the transaction in your wallet."
         setStep(3);
+        // Start simulated progress: estimate ~1.5 MB/s upload, cap at 92%
+        const estimatedMs = Math.max((file.size / (1.5 * 1024 * 1024)) * 1000, 4000);
+        const intervalMs = 300;
+        const increment = (intervalMs / estimatedMs) * 92;
+        setUploadProgress(0);
+        progressTimerRef.current = setInterval(() => {
+          setUploadProgress((p) => Math.min(p + increment, 92));
+        }, intervalMs);
         return response;
       };
 
@@ -234,6 +245,19 @@ export default function ProvePage() {
                       <p className="text-xs text-center text-shelby-muted font-mono animate-pulse">
                         {STEP_HELP[step] || "Preparing proof..."}
                       </p>
+                      {step === 3 && (
+                        <div className="space-y-1.5">
+                          <div className="h-1.5 w-full rounded-full bg-shelby-surface2 overflow-hidden">
+                            <div
+                              className="h-full rounded-full bg-shelby-accent transition-all duration-300"
+                              style={{ width: `${uploadProgress}%` }}
+                            />
+                          </div>
+                          <p className="text-[0.68rem] font-mono text-shelby-muted text-right">
+                            {Math.round(uploadProgress)}%
+                          </p>
+                        </div>
+                      )}
                       {fileHash && (
                         <div className="rounded-xl border border-shelby-border bg-shelby-bg/55 p-3">
                           <p className="text-[0.68rem] font-mono uppercase tracking-widest text-shelby-muted">
