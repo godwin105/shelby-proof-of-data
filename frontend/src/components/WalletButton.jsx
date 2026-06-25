@@ -21,11 +21,13 @@ export default function WalletButton({ compact = false }) {
         : account.address?.toString() ?? "";
 
     return (
-      <div className="relative">
+      <div className={`relative ${compact ? "min-w-0 flex-1" : ""}`}>
         <button
           type="button"
           onClick={() => setShowMenu((open) => !open)}
-          className="h-10 max-w-[9.25rem] flex items-center gap-2 px-3 rounded-xl border border-shelby-success/30 bg-shelby-success/10 text-shelby-success text-xs font-mono hover:bg-shelby-success/20 transition-all"
+          className={`h-10 flex items-center gap-2 px-3 rounded-xl border border-shelby-success/30 bg-shelby-success/10 text-shelby-success text-xs font-mono hover:bg-shelby-success/20 transition-all ${
+            compact ? "w-full min-w-0" : "max-w-[9.25rem]"
+          }`}
         >
           <span className="w-1.5 h-1.5 rounded-full bg-shelby-success animate-pulse shrink-0" />
           <span className="truncate">{truncate(addressStr)}</span>
