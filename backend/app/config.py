@@ -1,10 +1,21 @@
 from pydantic_settings import BaseSettings
+from pydantic import field_validator
 from typing import Optional
 
 
 class Settings(BaseSettings):
-    # MySQL
+    # PostgreSQL — Supabase/Render provide "postgres://..." but SQLAlchemy needs "postgresql://..."
     DATABASE_URL: str
+
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def fix_pg_scheme(cls, v: str) -> str:
+        # Supabase/Render give "postgres://..." — normalise to psycopg v3 dialect
+        if v.startswith("postgres://"):
+            return "postgresql+psycopg://" + v[len("postgres://"):]
+        if v.startswith("postgresql://"):
+            return "postgresql+psycopg://" + v[len("postgresql://"):]
+        return v
 
     # Aptos node — testnet
     APTOS_NODE_URL: str = "https://fullnode.testnet.aptoslabs.com/v1"

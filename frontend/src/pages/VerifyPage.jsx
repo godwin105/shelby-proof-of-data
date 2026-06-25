@@ -104,7 +104,7 @@ export default function VerifyPage() {
             type="button"
             onClick={handleVerify}
             disabled={loading}
-            className={`w-full min-h-12 rounded-xl font-display font-semibold text-sm tracking-wide transition-all duration-200 flex items-center justify-center gap-2 ${
+            className={`w-full min-h-12 rounded-xl font-sans font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
               loading
                 ? "bg-shelby-surface2 text-shelby-muted border border-shelby-border cursor-not-allowed"
                 : "bg-shelby-accent text-shelby-onAccent hover:brightness-110 accent-glow active:scale-[0.99]"

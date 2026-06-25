@@ -54,7 +54,7 @@ export default function DropZone({
 
       {file ? (
         <div className="w-full min-w-0">
-          <p className="font-display font-semibold text-shelby-text truncate">{file.name}</p>
+          <p className="font-mono text-sm font-semibold text-shelby-text truncate">{file.name}</p>
           <p className="text-sm text-shelby-muted mt-1">
             {formatSize(file.size)} / {file.type || "unknown type"}
           </p>
@@ -62,7 +62,7 @@ export default function DropZone({
         </div>
       ) : (
         <div className="max-w-sm">
-          <p className="font-display font-semibold text-shelby-text">{label}</p>
+          <p className="font-sans font-medium text-base text-shelby-text">{label}</p>
           <p className="text-sm text-shelby-muted mt-1">Any file type, up to 100 MB</p>
         </div>
       )}

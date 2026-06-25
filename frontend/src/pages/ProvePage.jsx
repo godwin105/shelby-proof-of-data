@@ -249,7 +249,7 @@ export default function ProvePage() {
                     type="button"
                     onClick={handleProve}
                     disabled={!file || loading || uploadBlobs.isPending}
-                    className={`w-full min-h-12 rounded-xl font-display font-semibold text-sm tracking-wide transition-all duration-200
+                    className={`w-full min-h-12 rounded-xl font-sans font-semibold text-sm transition-all duration-200
                       flex items-center justify-center gap-2 ${
                         !file || loading || uploadBlobs.isPending
                           ? "bg-shelby-surface2 text-shelby-muted border border-shelby-border cursor-not-allowed"
