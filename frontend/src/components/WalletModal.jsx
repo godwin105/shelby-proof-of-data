@@ -1,7 +1,9 @@
 import { useEffect } from "react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { X } from "lucide-react";
+import { ExternalLink, X } from "lucide-react";
 import { useWalletModal } from "../context/WalletModalContext";
+
+const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 
 function WalletIcon({ wallet }) {
   const icon = wallet.icon;
@@ -120,7 +122,26 @@ export default function WalletModal() {
             </div>
           )}
 
-          {wallets.length === 0 && (
+          {isMobile && (
+            <div className="px-5 sm:px-8 pb-6">
+              <p className="text-xs font-mono text-shelby-muted uppercase tracking-widest mb-3">
+                Mobile wallet
+              </p>
+              <a
+                href={`https://petra.app/explore?link=${encodeURIComponent(window.location.origin)}`}
+                className="flex items-center gap-4 w-full px-4 py-3.5 rounded-xl transition-all text-left border bg-shelby-surface border-shelby-border hover:border-shelby-accent/45 hover:bg-shelby-accent/5"
+              >
+                <img src="https://petra.app/favicon.ico" alt="Petra" className="w-9 h-9 rounded-xl object-contain shrink-0" onError={(e) => { e.target.style.display='none'; }} />
+                <div className="min-w-0">
+                  <p className="text-base font-semibold text-shelby-text">Petra Mobile</p>
+                  <p className="text-xs text-shelby-muted mt-0.5">Opens in Petra app</p>
+                </div>
+                <ExternalLink size={14} className="text-shelby-muted shrink-0 ml-auto" />
+              </a>
+            </div>
+          )}
+
+          {!isMobile && wallets.length === 0 && (
             <div className="px-5 sm:px-8 pb-8 text-center space-y-4">
               <p className="text-sm text-shelby-muted">No wallets detected in this browser.</p>
               <a
@@ -136,7 +157,9 @@ export default function WalletModal() {
 
           <div className="px-5 sm:px-8 pb-8 pt-2">
             <p className="text-xs font-mono text-shelby-muted">
-              Supports Petra, OKX, Martian, and compatible Aptos wallets
+              {isMobile
+                ? "Use Petra Mobile or social sign-in to connect on mobile"
+                : "Supports Petra, OKX, Martian, and compatible Aptos wallets"}
             </p>
           </div>
         </div>

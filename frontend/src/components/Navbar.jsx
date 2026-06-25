@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, Moon, Sun, X } from "lucide-react";
+import { Download, Menu, Moon, Share, Sun, X } from "lucide-react";
 import WalletButton from "./WalletButton";
+import { usePWAInstall } from "../hooks/usePWAInstall";
 
 const links = [
   { to: "/", label: "Home" },
@@ -13,10 +14,12 @@ const links = [
 export default function Navbar() {
   const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showIOSHint, setShowIOSHint] = useState(false);
   const [theme, setTheme] = useState(() => {
     if (typeof document === "undefined") return "dark";
     return document.documentElement.dataset.theme || "dark";
   });
+  const { install, canInstall, isIOS, hasNativePrompt } = usePWAInstall();
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -70,6 +73,16 @@ export default function Navbar() {
         </nav>
 
         <div className="hidden md:flex items-center gap-3 shrink-0">
+          {canInstall && (
+            <button
+              type="button"
+              onClick={isIOS ? () => setShowIOSHint(true) : install}
+              title="Install app"
+              className="h-10 w-10 rounded-xl border border-shelby-accent/40 text-shelby-accent hover:bg-shelby-accent/10 transition-colors grid place-items-center"
+            >
+              <Download size={16} />
+            </button>
+          )}
           <button
             type="button"
             onClick={toggleTheme}
@@ -83,6 +96,16 @@ export default function Navbar() {
         </div>
 
         <div className="flex md:hidden items-center gap-2 ml-auto min-w-0">
+          {canInstall && (
+            <button
+              type="button"
+              onClick={isIOS ? () => setShowIOSHint(true) : install}
+              title="Install app"
+              className="h-10 w-10 rounded-xl border border-shelby-accent/40 text-shelby-accent hover:bg-shelby-accent/10 transition-colors grid place-items-center shrink-0"
+            >
+              <Download size={16} />
+            </button>
+          )}
           <button
             type="button"
             onClick={toggleTheme}
@@ -115,6 +138,30 @@ export default function Navbar() {
                 </Link>
               );
             })}
+          </div>
+        </div>
+      )}
+      {showIOSHint && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-end sm:items-center justify-center px-4 pb-6 sm:pb-0" onClick={() => setShowIOSHint(false)}>
+          <div className="w-full max-w-sm rounded-2xl border border-shelby-border bg-shelby-bg p-6 space-y-4 animate-slide-up" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h3 className="font-sans font-semibold text-shelby-text text-base">Install Shelby PoD</h3>
+              <button type="button" onClick={() => setShowIOSHint(false)} className="text-shelby-muted hover:text-shelby-text"><X size={18} /></button>
+            </div>
+            <ol className="space-y-3 text-sm text-shelby-muted">
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-shelby-accent/15 text-shelby-accent text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+                <span>Tap the <Share size={14} className="inline mx-1 text-shelby-accent" /> <strong className="text-shelby-text">Share</strong> button at the bottom of Safari</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-shelby-accent/15 text-shelby-accent text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                <span>Scroll down and tap <strong className="text-shelby-text">Add to Home Screen</strong></span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-shelby-accent/15 text-shelby-accent text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+                <span>Tap <strong className="text-shelby-text">Add</strong> — the app will appear on your home screen</span>
+              </li>
+            </ol>
           </div>
         </div>
       )}
